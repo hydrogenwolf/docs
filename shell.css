@@ -1,0 +1,58 @@
+body {
+	padding: 1em 5em;
+	font-family: monospace;
+	/*
+	font: 14px 'Malgun Gothic';
+	font-family: Fixedsys;
+	font-family: monospace;
+	font-family: serif;
+	font-family: sans-serif;
+	font-family: cursive;
+	font-family: fantasy;
+	*/
+}
+table {
+	border-collapse: collapse;
+}
+img {
+	border: 0 none;
+}
+p {
+	text-indent: 1em;
+}
+h2 {
+	margin-top: 3em;
+	border-bottom: thin solid black;
+}
+h3 {
+	margin-top: 3em;
+}
+blockquote {
+	border: thin dashed #555555;
+	margin: 1em 3em;
+	padding: 0.5em 1em;
+}
+pre.shell {
+	font-family: monospace;
+	background-color: black;
+	color: white;
+	margin: 2em 3em;
+	padding: 1em;
+/*
+	white-space: pre-wrap;
+	white-space: -moz-pre-wrap;
+	word-wrap: break-word;
+*/
+}
+em {
+	font-style: normal;
+	color: #DDBB00;
+}
+var {
+	font-style: normal;
+	color: #775500;
+}
+kbd {
+	font-weight: bold;
+	color: #5555FF;
+}
