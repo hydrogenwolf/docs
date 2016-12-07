@@ -1,0 +1,327 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>rTorrent</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>rTorrent</h1>
+
+<p>
+Version: rtorrent 0.8.0
+</p>
+
+<ul>
+<li><a href="http://libtorrent.rakshasa.no/">The libTorrent and rTorrent Project</a></li>
+<li><a href="http://projects.cyla.homeip.net/rtwi/wiki/InstallationGuide">InstallationGuide - rTWi</a></li>
+<li><a href="http://canbruixa.homelinux.net/wt/">wTorrent</a></li>
+</ul>
+
+<h2>XML-RPC</h2>
+
+<p>
+
+XML-RPC는 XML과 HTTP를 기반으로 하는 가벼운 RPC 라이브러리다. 이것은 rtorrent 구동에 필수적인 요소는 아니지만, rtorrent를 Web UI로 제어하기 위해 필요하다.
+</p>
+
+<p>
+필요하다면 다음 링크들을 참고해서 설치하도록 한다.
+</p>
+
+<ul>
+<li>http://projects.cyla.homeip.net/rtwi/wiki/InstallationGuide</li>
+<li>http://canbruixa.homelinux.net/wt/</li>
+<li>http://sourceforge.net/project/showfiles.php?group_id=16847</li>
+</ul>
+
+<p>
+
+rtorrent를 Web UI로 제어하기 위해서는 또한 PHP에서 XMLRPC, XSL을 지원해야 한다. <a href="ftp://xmlsoft.org/libxslt/">ftp://xmlsoft.org/libxslt/</a> 사이트에서 libxml 패키지와 libxslt 패키지를 받아서 설치하고, PHP를 configure할 때 --with-xmlrpc 옵션과 --with-xsl 옵션을 추가하도록 한다. (PHP Version 5.2.5 기준)
+</p>
+
+<ul>
+<li>http://www.php.net/manual/kr/ref.xmlrpc.php</li>
+<li>http://www.php.net/manual/kr/ref.xsl.php</li>
+<li>http://xmlsoft.org/XSLT/</li>
+</ul>
+
+<h2>필요한 패키지, 라이브러리가 설치되어 있는지 확인</h2>
+
+<blockquote>
+공식 사이트에 패키지 설치 방법이 있다. ("yum install rtorrent" or "yum install libtorrent")
+다음 번에는 소스 설치가 아니라 패키지 설치를 하도록 하자.
+</blockquote>
+
+<pre class="shell">
+$ <em>yum list pkg*</em>
+Setting up repositories
+Reading repository metadata in from local files
+Installed Packages
+pkgconfig.i386                           1:0.15.0-3             installed
+$ <em>yum list openssl*</em>
+Setting up repositories
+Reading repository metadata in from local files
+Installed Packages
+openssl.i686                             0.9.7a-43.17.el4_6.1   installed
+openssl-devel.i586                       0.9.7a-43.17.el4_6.1   installed
+Available Packages
+openssl.i386                             0.9.7a-43.17.el4_6.1   base
+openssl.i586                             0.9.7a-43.17.el4_6.1   base
+openssl-devel.i386                       0.9.7a-43.17.el4_6.1   base
+openssl-perl.i586                        0.9.7a-43.17.el4_6.1   base
+openssl-perl.i386                        0.9.7a-43.17.el4_6.1   base
+openssl096b.i386                         0.9.6b-22.46           base
+$ <em>yum list ncurses*</em>
+Setting up repositories
+Reading repository metadata in from local files
+Installed Packages
+ncurses.i386                             5.4-15.el4             installed
+ncurses-devel.i386                       5.4-15.el4             installed
+</pre>
+
+<h2>libsigc++ 다운로드 및 설치</h2>
+<p> libsigc++은 libTorrent를 빌드할 때 필요하다. </p>
+<blockquote>
+다음 단계에서 PKG_CONFIG_PATH를 export하는 과정을 빼먹어서 이 라이브러리가 필요하다는 오류가 발생했을 가능성이 있다. 다음 번 설치 때는 이 라이브러리 설치를 생략해보도록.
+</blockquote>
+<pre class="shell">
+$ <em>wget http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.0/libsigc++-2.0.17.tar.gz</em>
+--15:33:14--  http://ftp.gnome.org/pub/GNOME/sources/libsigc++/2.0/libsigc++-2.0.17.tar.gz
+           => `libsigc++-2.0.17.tar.gz'
+Resolving ftp.gnome.org... 130.239.18.137, 2001:6b0:e:2018::137
+Connecting to ftp.gnome.org|130.239.18.137|:80... connected.
+HTTP request sent, awaiting response... 302 Found
+Location: http://saimei.acc.umu.se/pub/GNOME/sources/libsigc++/2.0/libsigc++-2.0.17.tar.gz [following]
+--15:33:16--  http://saimei.acc.umu.se/pub/GNOME/sources/libsigc++/2.0/libsigc++-2.0.17.tar.gz
+           => `libsigc++-2.0.17.tar.gz'
+Resolving saimei.acc.umu.se... 130.239.18.138, 2001:6b0:e:2018::138
+Connecting to saimei.acc.umu.se|130.239.18.138|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2,293,739 (2.2M) [application/x-gzip]
+
+100%[=================================================================>] 2,293,739    193.86K/s    ETA 00:00
+
+15:33:31 (157.40 KB/s) - `libsigc++-2.0.17.tar.gz' saved [2293739/2293739]
+
+$ <em>tar -zxvf libsigc++-2.0.17.tar.gz</em>
+중략
+
+$ <em>cd libsigc++-2.0.17</em>
+
+중략
+
+$ <em>./configure</em>
+중략
+
+$ <em>make</em>
+중략
+
+$ <em>make install</em>
+중략
+
+</pre>
+
+<h2>libCurl 설치</h2>
+<p> libCurl은 rTorrent를 빌드할 때 필요하다. </p>
+
+<pre class="shell">
+$ <em>wget http://curl.haxx.se/download/curl-7.16.4.tar.gz</em>
+--16:03:43--  http://curl.haxx.se/download/curl-7.16.4.tar.gz
+           => `curl-7.16.4.tar.gz'
+Resolving curl.haxx.se... 91.191.140.28
+Connecting to curl.haxx.se|91.191.140.28|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 2,127,522 (2.0M) [application/x-gzip]
+
+100%[=================================================================>] 2,127,522     17.40K/s    ETA 00:00
+
+16:05:12 (23.86 KB/s) - `curl-7.16.4.tar.gz' saved [2127522/2127522]
+
+$ <em>tar -zxvf curl-7.16.4.tar.gz</em>
+중략
+
+$ <em>cd curl-7.16.4</em>
+중략
+
+$ <em>./configure</em>
+중략
+
+$ <em>make</em>
+중략
+
+$ <em>make install</em>
+
+중략
+
+</pre>
+
+<h2>libTorrent(rTorrent 엔진) 다운로드 및 설치</h2>
+
+<pre class="shell">
+$ <em>find / -name pkgconfig</em>
+/usr/lib/pkgconfig
+/usr/local/lib/pkgconfig
+/usr/local/apache2/lib/pkgconfig
+
+$ <em>export PKG_CONFIG_PATH=/usr/local/lib/pkgconfig/</em>
+</pre>
+
+<p>
+pkgconfig의 위치를 지정해두지 않으면 configure할 때 에러가 발생한다.
+
+</p>
+
+<pre class="shell">
+$ <em>wget http://libtorrent.rakshasa.no/downloads/libtorrent-0.11.9.tar.gz</em>
+--15:19:37--  http://libtorrent.rakshasa.no/downloads/libtorrent-0.11.9.tar.gz
+           => `libtorrent-0.11.9.tar.gz'
+Resolving libtorrent.rakshasa.no... 66.220.1.220
+Connecting to libtorrent.rakshasa.no|66.220.1.220|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 545,210 (532K) [application/x-gzip]
+
+100%[=================================================================>] 545,210      190.30K/s
+
+15:19:42 (189.91 KB/s) - `libtorrent-0.11.9.tar.gz' saved [545210/545210]
+
+$ <em>tar -zxvf libtorrent-0.11.9.tar.gz</em>
+중략
+
+$ <em>cd libtorrent-0.11.9</em>
+중략
+
+$ <em>./configure</em>
+중략
+
+$ <em>make</em>
+
+중략
+
+$ <em>make install</em>
+중략
+
+</pre>
+
+<h2>rTorrent 다운로드 및 설치</h2>
+<div>
+<p> 정확한 이유는 알 수 없으나, rTorrent를 빌드할 때 아래와 같은 오류가 발생. </p>
+<blockquote>
+Unknown keyword 'URL' in '/usr/local/lib/pkgconfig/libcurl.pc'
+</blockquote>
+<p> libcurl.pc 파일에서 URL 키워드가 있는 라인을 주석 처리해서 해결. </p>
+
+</div>
+
+<pre class="shell">
+$ <em>wget http://libtorrent.rakshasa.no/downloads/rtorrent-0.7.9.tar.gz</em>
+--16:00:35--  http://libtorrent.rakshasa.no/downloads/rtorrent-0.7.9.tar.gz
+           => `rtorrent-0.7.9.tar.gz'
+Resolving libtorrent.rakshasa.no... 66.220.1.220
+Connecting to libtorrent.rakshasa.no|66.220.1.220|:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 489,174 (478K) [application/x-gzip]
+
+100%[=================================================================>] 489,174      188.72K/s
+
+16:00:38 (188.16 KB/s) - `rtorrent-0.7.9.tar.gz' saved [489174/489174]
+
+$ <em>tar -zxvf rtorrent-0.7.9.tar.gz</em>
+중략
+
+$ <em>cd rtorrent-0.7.9</em>
+중략
+
+$ <em>./configure</em>
+중략
+
+$ <em>make</em>
+
+중략
+
+$ <em>make install</em>
+중략
+
+</pre>
+
+<h2>Configuration</h2>
+
+<p>
+각 사용자 홈디렉토리의 .rtorrent.rc 
+</p>
+
+<pre class="shell">
+$ <em>cat .rtorrent.rc</em>
+
+port_range = 8339-8339
+directory = /home/ftp
+session = ~/.rtorrent_session
+encoding_list = UTF-8
+scgi_port = 127.0.0.1:5000
+</pre>
+
+<h2>screen 설치</h2>
+
+<pre class="shell">
+$ <em>yum list screen*</em>
+Setting up repositories
+Reading repository metadata in from local files
+Available Packages
+screen.i386                              4.0.2-5                base
+$ <em>yum install screen</em>
+Setting up Install Process
+Setting up repositories
+Reading repository metadata in from local files
+Parsing package install arguments
+Resolving Dependencies
+--> Populating transaction set with selected packages. Please wait.
+---> Downloading header for screen to pack into transaction set.
+screen-4.0.2-5.i386.rpm   100% |=========================|  13 kB    00:00
+---> Package screen.i386 0:4.0.2-5 set to be updated
+--> Running transaction check
+
+Dependencies Resolved
+
+=============================================================================
+ Package                 Arch       Version          Repository        Size
+=============================================================================
+Installing:
+ screen                  i386       4.0.2-5          base              542 k
+
+Transaction Summary
+=============================================================================
+Install      1 Package(s)
+Update       0 Package(s)
+Remove       0 Package(s)
+Total download size: 542 k
+Is this ok [y/N]: <em>y</em>
+Downloading Packages:
+(1/1): screen-4.0.2-5.i38 100% |=========================| 542 kB    00:03
+Running Transaction Test
+Finished Transaction Test
+Transaction Test Succeeded
+Running Transaction
+  Installing: screen                       ######################### [1/1]
+
+Installed: screen.i386 0:4.0.2-5
+Complete!
+
+$ <em>yum list screen*</em>
+
+Setting up repositories
+Reading repository metadata in from local files
+Installed Packages
+screen.i386                              4.0.2-5                installed
+
+# rTorrent 실행
+$ <em>screen rtorrent</em>
+</pre>
+
+<blockquote>
+screen으로 실행한 뒤에 그 세션을 벗어날 때는 CTRL+a 누르고, d 키.
+다시 세션으로 돌아갈 때는 명령행에서 screen -r
+</blockquote>
+
+</body>
+</html>

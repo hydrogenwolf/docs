@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>lighttpd</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>lighttpd</h1>
+
+<p>
+Version: lighttpd-1.4.18-1
+</p>
+
+<ul>
+<li><a href="http://trac.lighttpd.net/trac/wiki/TutorialInstallation">Installing Lighttpd</a></li>
+<li><a href="http://dag.wieers.com/rpm/packages/lighttpd/">lighttpd RPM packages for Red Hat, CentOS and Fedora</a></li>
+</ul>
+
+<h2>Install</h2>
+
+<p>
+pcre 패키지와 zlib 패키지 필요
+</p>
+
+<pre class="shell">
+# <em>yum install pcre</em>
+Setting up Install Process
+Setting up repositories
+중략
+
+# <em>yum install zlib</em>
+Setting up Install Process
+Setting up repositories
+Reading repository metadata in from local files
+Parsing package install arguments
+Nothing to do
+</pre>
+
+<blockquote>
+zlib 패키지는 이미 설치되어 있었던 듯
+</blockquote>
+
+<p>
+rpm 방식으로 lighttpd 설치
+
+</p>
+
+<pre class="shell">
+# <em>wget http://dag.wieers.com/rpm/packages/lighttpd/lighttpd-1.4.18-1.el4.rf.i386.rpm</em>
+
+# <em>rpm -Uvh lighttpd-1.4.18-1.el4.rf.i386.rpm</em>
+warning: lighttpd-1.4.18-1.el4.rf.i386.rpm: V3 DSA signature: NOKEY, key ID 6b8d79e6
+Preparing...                ########################################### [100%]
+   1:lighttpd               ########################################### [100%]
+
+</pre>
+
+<p>
+PHP를 지원하기 위해 FastCGI 모듈도 설치
+</p>
+
+<pre class="shell">
+# <em>wget http://dag.wieers.com/rpm/packages/lighttpd/lighttpd-fastcgi-1.4.18-1.el4.rf.i386.rpm</em>
+
+# <em>rpm -Uvh lighttpd-fastcgi-1.4.18-1.el4.rf.i386.rpm</em>
+warning: lighttpd-fastcgi-1.4.18-1.el4.rf.i386.rpm: V3 DSA signature: NOKEY, key ID 6b8d79e6
+Preparing...                ########################################### [100%]
+   1:lighttpd-fastcgi       ########################################### [100%]
+
+</pre>
+
+<blockquote>
+패키지 다운로드 시, RedHat EL4 버전으로 선택
+</blockquote>
+
+<h2>FastCGI를 지원하는 PHP Making</h2>
+
+<p>
+참조: <a href="http://trac.lighttpd.net/trac/wiki/TutorialLighttpdAndPHP">Setting up PHP with Lighttpd</a>
+</p>
+
+<pre class="shell">
+# <em>cd php-5.2.5</em>		# PHP 소스 디렉토리
+
+# <em>./configure --enable-fastcgi --enable-discard-path --enable-force-cgi-redirect</em>
+
+# <em>make</em>
+
+</pre>
+
+<p>
+php-cgi만 필요하므로 make install은  하지 않고 그냥 생성된 php-cgi만 복사했다.
+</p>
+
+<pre class="shell">
+# <em>ls sapi/cgi/</em>
+cgi_main.c   config9.m4  fastcgi.c   fastcgi.o  getopt.o       php_getopt.h    tests
+cgi_main.lo  config.w32  fastcgi.h   getopt.c   Makefile.frag  php.sym
+cgi_main.o   CREDITS     fastcgi.lo  getopt.lo  <em>php-cgi</em>        README.FastCGI
+
+# <em>cp sapi/cgi/php-cgi /usr/local/bin/</em>
+
+</pre>
+
+<p>
+php.ini 파일에서 cgi.fix_pathinfo = 0을 cgi.fix_pathinfo = 1로 수정하는 것 잊지말 것.
+</p>
+
+<h2>Configuration</h2>
+
+<p>
+/etc/lighttpd/lighttpd.conf 파일에서 다음을 적절히 수정
+</p>
+
+<pre class="shell">
+server.document-root	= "/srv/www/lighttpd"
+server.port		= 81
+</pre>
+
+<p>
+PHP 지원. server.modules 파트의 mod_fastcgi 주석을 풀고 fastcgi.server 파트를 다음과 같이 설정
+</p>
+
+<pre class="shell">
+fastcgi.server =( ".php" => (( 
+			"bin-path" => "/path/to/php-cgi",
+			"socket" => "/tmp/php.socket"
+			))
+		)
+</pre>
+
+</body>
+</html>

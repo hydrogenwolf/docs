@@ -1,0 +1,257 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>svn</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>svn</h1>
+
+<p>Last updated: 2011-04-29</p>
+
+<h2>Link</h2>
+
+<ul>
+<li>
+<a href="http://www.pyrasis.com/main/Subversion-HOWTO">Subversion 사용 HOWTO</a>
+</li>
+</ul>
+
+<h2>Install</h2>
+
+<p>배포판에 따라 적절히 설치</p>
+
+<pre class="shell">
+$ <em>sudo yum install subversion</em>		# Redhat
+
+$ <em>sudo apt-get install subversion</em>		# Debian
+
+</pre>
+
+<h2>데몬 실행</h2>
+
+<p>svn 루트 디렉토리로 /var/svn/을 사용한다고 가정</p>
+
+<pre class="shell">
+$ <em>sudo svnserve -d -r /var/svn/</em>
+</pre>
+
+<h2>프로젝트 생성</h2>
+
+<p>프로젝트를 위한 저장소(Repository) 생성.</p>
+
+<pre class="shell">
+$ <em>svnadmin create /var/svn/sample</em>
+</pre>
+
+<h2>인증</h2>
+
+<h3>svn의 passwd 파일 이용하기</h3>
+
+<pre class="shell">
+$ <em>vi /var/svn/sample/conf/svnserve.conf</em>
+</pre>
+
+<p>
+가장 간단한 형태의 권한 설정은 설정 파일인 svnserve.conf 파일에서 password-db = passwd 부분의 주석을 제거해서 passwd로 인증하는 것.
+</p>
+
+<p>
+시스템의 passwd 파일이 아닌 svn 자체의 passwd 파일임에 유의. svnserve.conf 파일과 동일한 디렉토리에 위치.
+</p>
+
+<h3>apache 인증 사용하기</h3>
+
+<p>
+libapache2-svn 설치 
+</p>
+
+<pre class="shell">
+$ <em>sudo apt-get install libapache2-svn</em>
+</pre>
+
+<p>
+설정 파일(/etc/apache2/mods-available/dav_svn_conf)에 다음 내용을 입력
+</p>
+
+<pre class="shell">
+<em>
+&lt;Location /svn/sample&gt;
+ DAV svn
+ SVNPath /var/svn/sample
+ AuthType Basic
+ AuthName "Subversion Repository"
+ AuthUserFile /etc/apache2/dav_svn.passwd
+ Require valid-user
+&lt;/Location&gt;
+</em>
+</pre>
+
+<p>
+앞서 설정 파일에서 AuthUserFile로 지정한 파일을 htpasswd 명령을 이용해서 생성한다.
+</p>
+
+<pre class="shell">
+$ <em>htpasswd -c /etc/apache2/dav_svn.passwd <var>UserName</var></em>
+</pre>
+
+<p>
+파일 소유자를 변경해서 접근 권한 문제가 아예 생길 수 없게 한다.
+</p>
+
+<pre class="shell">
+$ <em>sudo chown -R www-data:www-data /var/svn/sample</em>
+</pre>
+
+<p>
+<var>http://ServerAddress/svn/sample</var>로 접속해서 동작을 확인한다.
+</p>
+
+<h2>기본 디렉토리 생성</h2>
+
+<p>
+커맨드 라인으로 svn을 사용하려면 SVN 에디터를 지정해줘야 한다. 환경 변수 SVN_EDITOR 또는 실행 시에 --editor-cmd 옵션으로 SVN 에디터를 지정할 수 있다.
+</p>
+
+<p>trunk 디렉토리 생성</p>
+
+<pre class="shell">
+
+$ <em>svn mkdir svn://localhost/sample/trunk</em>
+
+Log message unchanged or not specified
+a)bort, c)ontinue, e)dit
+<em>c</em>
+
+Committed revision 1.
+</pre>
+
+<p>branches 디렉토리 생성</p>
+
+<pre class="shell">
+$ <em>svn mkdir svn://localhost/sample/branches</em>
+
+Log message unchanged or not specified
+a)bort, c)ontinue, e)dit
+<em>c</em>
+
+Committed revision 2.
+</pre>
+
+<p>tags 디렉토리 생성</p>
+
+<pre class="shell">
+$ <em>svn mkdir svn://localhost/sample/tags</em>
+
+Log message unchanged or not specified
+a)bort, c)ontinue, e)dit
+<em>c</em>
+
+Committed revision 3.
+</pre>
+
+<h2> 저장소에 초기 파일 넣기 </h2>
+
+<p>
+sample 디렉토리 안의 파일들을 sample 프로젝트의 trunk 저장소에 넣는 예. 파일이 아니라 디렉토리를 적어주어야 하는 것에 유의.
+</p>
+
+<pre class="shell">
+$ <em>svn import sample svn://localhost/sample/trunk</em>
+
+중략
+
+</pre>
+
+<h2> 프로젝트 파일 가져 오기 </h2>
+
+<p>
+이제 checkout 명령을 이용해 저장한 프로젝트 파일을 어느 곳에서든 가져올 수 있다.
+</p>
+
+<pre class="shell">
+$ <em>svn checkout svn://server.com/sample/trunk sample</em>
+
+중략
+
+</pre>
+
+<h2> 버전 관리 안 하는 파일 </h2>
+
+<p>
+설정파일(svnserve.conf)에 global-ignores 옵션을 사용해서 버전 관리하지 않을 파일이나 디렉토리를 지정할 수 있다.
+</p>
+
+<p>
+다음 예는 Visual C# 개발 환경을 위한 global-ignores 지정 방법이다.
+</p>
+
+<pre class="shell">
+global-ignores = desktop.ini thumbs.db Thumbs.db *.bak *.pdb *.exe *.dll *.user *.suo obj bin Debug Release
+</pre>
+
+<p>
+다음 예는 Visual C++ 개발 환경을 위한 global-ignores 지정 방법이다.
+</p>
+
+<pre class="shell">
+global-ignores = *.user *.suo *.aps *.clw *.ncb *.opt *.plg
+</pre>
+
+<h2>백업 및 복구</h2>
+
+<p>sample 프로젝트 백업.</p>
+
+<pre class="shell">
+$ <em>svnadmin dump sample > sample.dump</em>
+* Dumped revision 0.
+* Dumped revision 1.
+* Dumped revision 2.
+* Dumped revision 3.
+
+중략
+</pre>
+
+<p>(동일 시스템 혹은 새 시스템에) 저장소 생성.</p>
+
+<pre class="shell">
+$ <em>svnadmin create sample2</em>
+</pre>
+
+<p>sample.dump 파일을 이용한 복구.</p>
+
+<pre class="shell">
+$ <em>svnadmin load sample2 < sample.dump</em>
+</pre>
+
+<h2>부팅 시 데몬 실행</h2>
+
+<h3>데비안</h3>
+
+<p>
+/etc/init.d 디렉토리에 실행 스크립트 작성.
+</p>
+
+<pre class="shell">
+$ <em>cat /etc/init.d/svn.sh</em>
+#!/bin/sh
+/usr/bin/svnserve -d -r /var/svn/
+</pre>
+
+<p>
+이 실행 스크립트에 대한 심볼릭 링크를 /etc/rcS.d 디렉토리에 작성.
+</p>
+
+<pre class="shell">
+$ <em>cd /etc/rcS.d/</em>
+$ <em>ln -s ../init.d/svn.sh S61svn.sh</em>
+</pre>
+
+<blockquote>
+심볼릭 링크 이름의 'S'와 숫자의 의미는 /etc/rcS.d/README 파일 참조
+</blockquote>
+
+</body>
+</html>

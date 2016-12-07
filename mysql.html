@@ -1,0 +1,511 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>MySQL</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+<style type="text/css">
+table.result {
+	border: 1px solid #C0C0C0;
+}
+table.result td {
+	padding: 0.2em 1em;
+}
+</style>
+</head>
+<body>
+
+<h1>MySQL</h1>
+
+<p>
+Last updated: Wed Jul  8 09:37:49 KST 2009
+</p>
+
+<h2>Install</h2>
+
+<h3>yum</h3>
+
+<pre class="shell">
+$ <em>yum list mysql*</em>
+Setting up repositories
+Reading repository metadata in from local files
+Installed Packages
+MySQL-python.i386                        1.2.1_p2-1.el4.1       installed
+mysql.i386                               4.1.22-2.el4           installed
+mysql-devel.i386                         4.1.22-2.el4           installed
+mysqlclient10.i386                       3.23.58-4.RHEL4.1      installed
+Available Packages
+mysql-server.i386                        4.1.22-2.el4           base
+mysql-bench.i386                         4.1.22-2.el4           base
+mysqlclient10-devel.i386                 3.23.58-4.RHEL4.1      base
+
+$ <em>yum install mysql-server</em>
+</pre>
+
+<blockquote>
+<p>
+간혹 mysql(클라이언트)만 설치되고 mysql-server는 설치되지 않은 시스템이 있으므로 유의.
+</p>
+</blockquote>
+
+<h3>수동 설치</h3>
+
+<p>
+MySQL 5.1 <a href="http://dev.mysql.com/downloads/mysql/5.1.html">다운로드</a> 페이지에서 Linux (non RPM packages) 다운로드.
+</p>
+
+<pre class="shell">
+$ <em>groupadd mysql</em>
+$ <em>useradd -g mysql mysql</em>
+
+$ <em>cd /usr/local</em>
+
+$ <em>tar -xzvf ~/mysql-5.0.41-linux-i686.tar.gz</em>
+$ <em>ln -s mysql-5.0.41-linux-i686/ mysql</em>
+
+$ <em>cd mysql</em>
+
+$ <em>chown -R mysql .</em>
+$ <em>chgrp -R mysql .</em>
+$ <em>scripts/mysql_install_db --user=mysql</em>
+Installing MySQL system tables...
+
+중략
+
+# data 디렉토리만 제외하고 모두 root 소유로 변경
+$ <em>chown -R root .</em>
+
+$ <em>chown -R mysql data</em>
+</pre>
+
+<h2>Start mysqld at boot time</h2>
+
+<pre class="shell">
+$ <em>cp support-files/mysql.server /etc/init.d/mysqld</em>
+
+$ <em>chkconfig --add mysqld</em>
+
+$ <em>chkconfig --list | grep httpd</em>
+httpd           0:off   1:off   2:off   3:on    4:off   5:off   6:off
+
+$ <em>chkconfig --list | grep mysqld</em>
+mysqld          0:off   1:off   2:off   3:off   4:off   5:off   6:off
+
+$ <em>chkconfig --level 3 mysqld on</em>
+# httpd와 같이 level 3에서 실행되도록 설정
+
+$ <em>chkconfig --list | grep mysqld</em>
+mysqld          0:off   1:off   2:off   3:on    4:off   5:off   6:off
+</pre>
+
+<ul>
+<li>참조: http://dev.mysql.com/doc/refman/5.0/en/unix-post-installation.html#automatic-start</li>
+<li>chkconfig 구문은 시스템에 따라 다를 수 있다.</li>
+</ul>
+
+<h2>Database & User Creation</h2>
+
+<pre class="shell">
+
+$ <em>bin/mysqld_safe --user=mysql &</em>
+[1] 30138
+$ Starting mysqld daemon with databases from /usr/local/mysql/data
+
+$ <em>bin/mysqladmin -u root password RootPassword</em>		# root 암호를 RootPassword로 설정
+
+$ <em>bin/mysql -u root -p</em>
+Enter password: 
+
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 114 to server version: 4.1.20-standard-log
+
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+# 데이터베이스 생성
+mysql&gt; <em>CREATE DATABASE UserDatabase;</em>
+Query OK, 1 row affected (0.02 sec)
+
+# 유저 생성
+mysql&gt; <em>GRANT ALL PRIVILEGES ON UserDatabase.* TO 'UserName'@'localhost' IDENTIFIED BY 'UserPassword';</em>
+
+Query OK, 0 rows affected (0.00 sec)
+
+mysql&gt; <em>exit</em>
+
+Bye
+</pre>
+
+<ul>
+<li>'ALL PRIVILEGES' 대신 'SELECT,INSERT,UPDATE,DELETE' 등과 같이 권한 설정을 세세하게 하는 것도 가능하지만 그런 경우는 <a href="http://www.phpmyadmin.net/">phpMyAdmin</a> 등과 같은 툴을 이용하는 것이 훨씬 편하다.</li>
+<li>외부 호스트에서 접속하는 계정은 'UserName'@'%'와 같이 호스트 이름에 %를 사용한다. <a href="http://dev.mysql.com/doc/refman/5.0/en/adding-users.html">참조</a></li>
+
+</ul>
+
+<h2>Character Set</h2>
+
+<pre class="shell">
+
+$ <em>cp support-files/my-medium.cnf /etc/my.cnf</em>
+</pre>
+
+/etc/my.cnf 파일을 열고 다음과 같이 수정
+<pre class="shell">
+<em>[mysqld] 항목에 다음 추가</em>
+default-character-set=utf8
+init_connect='SET NAMES utf8'
+
+
+</pre>
+
+<p>
+MySQL Character Set 설정에 대한 보다 자세한 내용은 <a href="#character_set_analysis">MySQL Character Set 분석</a> 참고
+
+</p>
+
+<h2>Backup & Restore</h2>
+<pre class="shell">
+-h Default : localhost
+-u Default : Current session user
+
+# Backup
+$ <em>mysqldump [ -h Host ] [ -u User ] -p Database &gt; DumpFile</em>
+
+Enter password:
+
+# Backup Table
+$ <em>mysqldump [ -h Host ] [ -u User ] -p Database Table &gt; DumpFile</em>
+
+Enter password:
+
+# Restore
+$ <em>mysql [ -h Host ] [ -u User ] -p Database &lt; DumpFile</em>
+Enter password:
+</pre>
+
+<blockquote>
+타 데이터베이스나 타 버전의 MySQL로 옮길 때, --compatible 옵션이 유용하다.
+
+</blockquote>
+
+<h2>MySQL 구문</h2>
+<pre class="shell">
+$ <em>bin/mysql -u root -p</em>
+
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 2072 to server version: 4.1.20-standard-log
+
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+mysql&gt; <em>SHOW DATABASES;</em>
++----------+
+| Database |
++----------+
+| mysql    |
+| test     |
++----------+
+2 rows in set (0.00 sec)
+
+mysql&gt; <em>USE mysql;</em>
+
+Database changed
+
+mysql&gt; <em>SHOW TABLES;</em>
+
++---------------------------+
+| Tables_in_mysql           |
++---------------------------+
+| columns_priv              |
+| db                        |
+| func                      |
+| help_category             |
+| help_keyword              |
+| help_relation             |
+| help_topic                |
+| host                      |
+| tables_priv               |
+| time_zone                 |
+| time_zone_leap_second     |
+| time_zone_name            |
+| time_zone_transition      |
+| time_zone_transition_type |
+| user                      |
++---------------------------+
+15 rows in set (0.00 sec)
+
+mysql&gt; <em>DESCRIBE user;</em>
+
++-----------------------+-----------------------------------+------+-----+---------+-------+
+| Field                 | Type                              | Null | Key | Default | Extra |
++-----------------------+-----------------------------------+------+-----+---------+-------+
+| Host                  | varchar(60)                       |      | PRI |         |       |
+| User                  | varchar(16)                       |      | PRI |         |       |
+| Password              | varchar(41)                       |      |     |         |       |
+| Select_priv           | enum('N','Y')                     |      |     | N       |       |
+| Insert_priv           | enum('N','Y')                     |      |     | N       |       |
+| Update_priv           | enum('N','Y')                     |      |     | N       |       |
+| Delete_priv           | enum('N','Y')                     |      |     | N       |       |
+
+중략
+
+
+mysql&gt; <em>SELECT Host,User FROM user;</em>
+
+중략
+
+</pre>
+
+<h2><a name="character_set_analysis">MySQL Character Set 분석</a></h2>
+
+<fieldset>
+어떤 클라이언트가 MySQL 서버에 접속한 뒤, 주고 받는 데이터(SQL statements, result sets)의 Character Set은 어떻게 결정되는가?
+
+</fieldset>
+
+<p>
+(UTF-8을 기본 Character Set으로 하는 시스템에) MySQL 5.0을 설치하면 latin1이 MySQL 기본 Character Set으로 잡히는 것을 볼 수 있다. (설정 파일인 /etc/my.cnf 자체가 없는 상태)
+
+</p>
+
+<pre class="shell">
+$ <em>echo $LANG</em>
+ko_KR.UTF-8
+
+$ <em>bin/mysqladmin -u root -p variables</em>
+
+Enter password:
++---------------------------------+----------------------------------------------------------+
+| Variable_name                   | Value                                                    |
++---------------------------------+----------------------------------------------------------+
+| auto_increment_increment        | 1                                                        |
+| auto_increment_offset           | 1                                                        |
+| automatic_sp_privileges         | ON                                                       |
+| back_log                        | 50                                                       |
+| basedir                         | /usr/local/mysql-5.0.41-linux-i686/                      |
+| binlog_cache_size               | 32768                                                    |
+| bulk_insert_buffer_size         | 8388608                                                  |
+| character_set_client            | latin1                                                   |
+| character_set_connection        | latin1                                                   |
+| character_set_database          | latin1                                                   |
+| character_set_filesystem        | binary                                                   |
+| character_set_results           | latin1                                                   |
+| character_set_server            | latin1                                                   |
+| character_set_system            | utf8                                                     |
+
+중략
+
+</pre>
+
+<p>/etc/my.cnf 파일의 [mysqld] 항목에 한줄(default-character-set = utf8)을 추가한 뒤 확인해본 결과는 다음과 같이 매우 고무적이다.</p>
+
+<pre class="shell">
+$ <em>bin/mysqladmin -u root -p variables</em>
+
+Enter password:
++---------------------------------+----------------------------------------------------------+
+| Variable_name                   | Value                                                    |
++---------------------------------+----------------------------------------------------------+
+| auto_increment_increment        | 1                                                        |
+| auto_increment_offset           | 1                                                        |
+| automatic_sp_privileges         | ON                                                       |
+| back_log                        | 50                                                       |
+| basedir                         | /usr/local/mysql-5.0.41-linux-i686/                      |
+| binlog_cache_size               | 32768                                                    |
+| bulk_insert_buffer_size         | 8388608                                                  |
+| character_set_client            | utf8                                                     |
+| character_set_connection        | utf8                                                     |
+| character_set_database          | utf8                                                     |
+| character_set_filesystem        | binary                                                   |
+| character_set_results           | utf8                                                     |
+| character_set_server            | utf8                                                     |
+| character_set_system            | utf8                                                     |
+
+중략
+
+</pre>
+
+<p>
+하지만 실제 mysql로 접속해서 variables 값을 확인해보면 다음과 같이 일부 값은 latin1인 것을 알 수 있다.
+</p>
+
+<pre class="shell">
+$ <em>bin/mysql -u root -p</em>
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 24
+Server version: 5.0.41-log MySQL Community Server (GPL)
+
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+mysql> <em>SHOW VARIABLES;</em>
+
++---------------------------------+----------------------------------------------------------+
+| Variable_name                   | Value                                                    |
++---------------------------------+----------------------------------------------------------+
+| auto_increment_increment        | 1                                                        |
+| auto_increment_offset           | 1                                                        |
+| automatic_sp_privileges         | ON                                                       |
+| back_log                        | 50                                                       |
+| basedir                         | /usr/local/mysql-5.0.41-linux-i686/                      |
+| binlog_cache_size               | 32768                                                    |
+| bulk_insert_buffer_size         | 8388608                                                  |
+| character_set_client            | latin1                                                   |
+| character_set_connection        | latin1                                                   |
+| character_set_database          | utf8                                                     |
+| character_set_filesystem        | binary                                                   |
+| character_set_results           | latin1                                                   |
+| character_set_server            | utf8                                                     |
+| character_set_system            | utf8                                                     |
+
+중략
+
+</pre>
+
+<p>
+/etc/my.cnf 파일의 [mysqld] 항목 뿐 아니라 [mysql] 항목에도 한줄(default-character-set = utf8)을 추가한 뒤 결과를 확인해보자.
+</p>
+
+<pre class="shell">
+
+$ <em>bin/mysql -u root -p</em>
+Enter password:
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 2
+Server version: 5.0.41-log MySQL Community Server (GPL)
+
+Type 'help;' or '\h' for help. Type '\c' to clear the buffer.
+
+mysql> <em>SHOW VARIABLES;</em>
++---------------------------------+----------------------------------------------------------+
+| Variable_name                   | Value                                                    |
++---------------------------------+----------------------------------------------------------+
+| auto_increment_increment        | 1                                                        |
+| auto_increment_offset           | 1                                                        |
+| automatic_sp_privileges         | ON                                                       |
+| back_log                        | 50                                                       |
+| basedir                         | /usr/local/mysql-5.0.41-linux-i686/                      |
+| binlog_cache_size               | 32768                                                    |
+| bulk_insert_buffer_size         | 8388608                                                  |
+| character_set_client            | utf8                                                     |
+| character_set_connection        | utf8                                                     |
+| character_set_database          | utf8                                                     |
+| character_set_filesystem        | binary                                                   |
+| character_set_results           | utf8                                                     |
+| character_set_server            | utf8                                                     |
+| character_set_system            | utf8                                                     |
+
+중략
+
+
+</pre>
+
+<p>
+모든 것이 완벽해 보이지만 실상은 아니다. MySQL에 포함되어 있는 클라이언트(mysql)가 아닌 외부 클라이언트(php)에서 MySQL 서버(mysqld)에 접속해보면 문제가 드러난다. 다음 php 코드를 이용해 페이지를 하나 만들고 결과를 확인해보자.
+</p>
+
+php 코드
+<pre class="shell">
+&lt;?php
+
+mysql_connect('server', 'username', 'password');
+$result = mysql_query('SHOW VARIABLES');
+
+echo '&lt;table&gt;';
+while($v = mysql_fetch_object($result))
+{
+	echo "&lt;tr&gt;&lt;td&gt;$v->Variable_name&lt;/td&gt;&lt;td&gt;$v->Value&lt;/td&gt;&lt;/tr&gt;";
+}
+echo '&lt;/table&gt;';
+
+?&gt;
+
+</pre>
+출력 페이지
+<table class="result">
+<tr><td>auto_increment_increment</td><td>1</td></tr>
+<tr><td>auto_increment_offset</td><td>1</td></tr>
+<tr><td>automatic_sp_privileges</td><td>ON</td></tr>
+<tr><td>back_log</td><td>50</td></tr>
+<tr><td>basedir</td><td>/usr/local/mysql-5.0.41-linux-i686/</td></tr>
+
+<tr><td>binlog_cache_size</td><td>32768</td></tr>
+<tr><td>bulk_insert_buffer_size</td><td>8388608</td></tr>
+<tr><td>character_set_client</td><td>latin1</td></tr>
+<tr><td>character_set_connection</td><td>latin1</td></tr>
+<tr><td>character_set_database</td><td>utf8</td></tr>
+<tr><td>character_set_filesystem</td><td>binary</td></tr>
+
+<tr><td>character_set_results</td><td>latin1</td></tr>
+<tr><td>character_set_server</td><td>utf8</td></tr>
+<tr><td>character_set_system</td><td>utf8</td></tr>
+</table>
+
+<p>
+항상 character_set_client, character_set_connection, character_set_results 이 3가지가 말썽인 것을 알 수 있다.
+</p>
+
+<p>
+
+우리의 호프 SET NAMES가 나타날 때가 됐다. SET NAMES 구문을 이용하면 저 세 말썽꾸러기의 값을 한번에 설정할 수 있다고 한다. (http://dev.mysql.com/doc/refman/5.0/en/charset-connection.html)
+
+</p>
+
+<p>
+앞의 php 코드에 아래와 같이 라인 하나를 추가하고 결과를 다시 확인해보자.
+</p>
+
+php 코드
+<pre class="shell">
+&lt;?php
+
+mysql_connect('server', 'username', 'password');
+<em>mysql_query('SET NAMES utf8');</em>
+$result = mysql_query('SHOW VARIABLES');
+
+echo '&lt;table&gt;';
+while($v = mysql_fetch_object($result))
+{
+	echo "&lt;tr&gt;&lt;td&gt;$v->Variable_name&lt;/td&gt;&lt;td&gt;$v->Value&lt;/td&gt;&lt;/tr&gt;";
+}
+echo '&lt;/table&gt;';
+
+?&gt;
+
+</pre>
+출력 페이지
+<table class="result">
+<tr><td>auto_increment_increment</td><td>1</td></tr>
+<tr><td>auto_increment_offset</td><td>1</td></tr>
+<tr><td>automatic_sp_privileges</td><td>ON</td></tr>
+<tr><td>back_log</td><td>50</td></tr>
+<tr><td>basedir</td><td>/usr/local/mysql-5.0.41-linux-i686/</td></tr>
+
+<tr><td>binlog_cache_size</td><td>32768</td></tr>
+<tr><td>bulk_insert_buffer_size</td><td>8388608</td></tr>
+<tr><td>character_set_client</td><td>utf8</td></tr>
+<tr><td>character_set_connection</td><td>utf8</td></tr>
+<tr><td>character_set_database</td><td>utf8</td></tr>
+<tr><td>character_set_filesystem</td><td>binary</td></tr>
+
+<tr><td>character_set_results</td><td>utf8</td></tr>
+<tr><td>character_set_server</td><td>utf8</td></tr>
+<tr><td>character_set_system</td><td>utf8</td></tr>
+</table>
+
+<p>
+이제 모든 mysql_connect() 뒤에 mysql_query("SET NAMES utf8")를 추가하기만 하면 된다. 약간 무식한가? 그렇다면 대신 /etc/my.cnf 파일의 [mysqld] 항목에 init_connect = 'SET NAMES utf8'을 추가하는 방법도 있다.
+</p>
+
+<ul>
+
+<li>init_connect는 접속이 일어날 때 서버에 의해 자동으로 실행되는 명령문. 하지만 SUPER 권한을 가진 유저가 접속할 때는 실행되지 않음에 유의.</li>
+
+<li>참고: http://dev.mysql.com/doc/refman/5.0/en/server-system-variables.html</li>
+</ul>
+
+<p>
+결과적으로 /etc/my.cnf 파일의 [mysqld] 항목에만 default-character-set과 init_connect를 설정하고 [mysql] 항목에는 아무것도 설정할 필요가 없다. 외부 클라이언트(php) 뿐 아니라 MySQL 클라이언트(mysql)에서 접속할 때도 init_connect에 의해 Character Set이 utf8로 설정되기 때문이다.
+</p>
+
+</body>
+</html>

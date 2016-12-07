@@ -1,0 +1,178 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>pure-ftpd</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> pure-ftpd </h1>
+
+<p>
+Last updated: Tue Jun  2 KST 2009
+</p>
+
+<h2> Link </h2>
+
+<ul>
+<li><a href="http://www.faqs.org/rfcs/rfc2640.html">RFC2640 - Internationalization of the File Transfer Protocol</a></li>
+<li><a href="http://download.pureftpd.org/pure-ftpd/doc/README.Virtual-Users">Pure-FTPd Documentation - Virtual users</a></li>
+<li>http://gaedol.org/entry/Pure-FTPd-Charset-Converting-mini-HOWTO</li>
+<li>http://wiki.shenhaoyu.com/doku.php?id=debian:pure-ftpd_a_secure_ftp_daemon</li>
+</ul>
+
+<h2> Install </h2>
+
+<pre class="shell">
+$ <em>sudo apt-get install pure-ftpd</em>
+</pre>
+
+<h2> Configuration for Virtual Users</h2>
+
+<p>
+pure-pw 유틸리티를 이용해 tom의 FTP 계정 생성. 결과로 /etc/pure-ftpd/pureftpd.passwd 파일이 생성됨. 
+</p>
+
+<pre class="shell">
+$ <em>sudo pure-pw useradd tom -u tom -d /home/tom</em>
+Password:
+Enter it again:
+
+$ <em>ls /etc/pure-ftpd/</em>
+auth  conf  db  pureftpd-dir-aliases  pureftpd.passwd
+</pre>
+
+<blockquote>
+<p>
+<a href="http://download.pureftpd.org/pure-ftpd/doc/README.Virtual-Users">가상 유저</a> 방식을 사용할 경우, 홈디렉토리 생성 및 접근 권한에 유의.
+</p>
+</blockquote>
+
+<p>
+/etc/pure-ftpd/pureftpd.passwd 파일에서 인증 DB /etc/pure-ftpd/pureftpd.pdb 파일 생성. (추후 유저 추가/삭제도 mkdb를 해준 후에야 실제 적용된다)
+</p>
+
+<pre class="shell">
+$ <em>sudo pure-pw mkdb</em>
+$ <em>ls /etc/pure-ftpd/</em>
+auth  conf  db  pureftpd-dir-aliases  pureftpd.passwd  pureftpd.pdb
+</pre>
+
+<p>
+PAMAuthentication 인증 대신 PureDB 인증을 하도록 설정.
+</p>
+
+<pre class="shell">
+$ <em>cat /etc/pure-ftpd/conf/PAMAuthentication</em>
+no
+
+$ <em>cat /etc/pure-ftpd/conf/PureDB</em>
+/etc/pure-ftpd/pureftpd.pdb
+
+$ <em>cd /etc/pure-ftpd/auth/</em>
+$ <em>sudo ln -s ../conf/PureDB 50pure</em>
+$ <em>ls -al</em>
+total 8
+drwxr-xr-x 2 0 0 4096 2009-05-08 14:13 .
+drwxr-xr-x 5 0 0 4096 2009-05-08 13:51 ..
+lrwxrwxrwx 1 0 0   14 2009-05-08 14:13 50pure -> ../conf/PureDB
+lrwxrwxrwx 1 0 0   26 2009-05-08 11:42 65unix -> ../conf/UnixAuthentication
+lrwxrwxrwx 1 0 0   25 2009-05-08 11:42 70pam -> ../conf/PAMAuthentication
+</pre>
+
+<h2> Configuration for MS-Windows Clients </h2>
+
+<p>
+웹브라우저에서 아이디/암호를 지정하지 않고 접근했을 때, Anonymous 접속을 시도하는 대신 아이디/암호를 묻는 창을 띄우도록 설정. (표준은 Anonymous 접속)
+</p>
+
+<pre class="shell">
+$ <em>echo yes | sudo tee /etc/pure-ftpd/conf/BrokenClientsCompatibility</em>
+</pre>
+
+<p>
+서버와 클라이언트의 Charset을 각각 UTF8, CP949로 지정.
+</p>
+
+<pre class="shell">
+$ <em>echo UTF8 | sudo tee /etc/pure-ftpd/conf/FSCharset</em>
+UTF8
+$ <em>echo CP949 | sudo tee /etc/pure-ftpd/conf/ClientCharset</em>
+CP949
+</pre>
+
+<p>
+이전에는 'FsCharset'이었으나, 최근 버전(1.0.24-1 확인)에서 'FSCharset'으로 바뀜.
+</p>
+
+<h2> Service Restart </h2>
+
+<p>
+수정한 설정이 적용되도록 다시 시작.
+</p>
+
+<pre class="shell">
+$ <em>sudo /etc/init.d/pure-ftpd restart</em>
+Restarting ftp server: Running: /usr/sbin/pure-ftpd -l puredb:/etc/pure-ftpd/pureftpd.pdb -9 CP949 -E -8 UTF8 -O clf:/var/log/pure-ftpd/transfer.log -u 1000 -b -j -B
+</pre>
+
+<h2> Account Management </h2>
+
+<p>
+유저 tom을 삭제하고, 유저 jerry를 추가하는 예. (tom의 홈 디렉토리는 수동으로 제거)
+</p>
+
+<pre class="shell">
+$ <em>sudo pure-pw list</em>
+tom                  /home/tom/./
+
+$ <em>sudo pure-pw userdel tom</em>
+
+$ <em>sudo pure-pw useradd jerry -u jerry -d /home/jerry -m</em>
+
+</pre>
+
+<blockquote>
+<p>
+pure-pw 명령의 -m 옵션은 변경 사항이 pureftpd.pdb에 바로 적용돼서 mkdb를 생략할 수 있도록 해준다.
+</p>
+</blockquote>
+
+<p>
+특정 아이피에서만 유저 jerry가 접근할 수 있도록 설정. 여러 아이피를 지정할 때는 콤마로 구분할 것. (콤마 뒤에 스페이스 없도록 유의)
+</p>
+
+<pre class="shell">
+$ <em>sudo pure-pw usermod jerry -r 118.32.160.69</em>
+
+$ <em>sudo pure-pw mkdb</em>
+</pre>
+
+<h2> Troubleshooting </h2>
+
+<p>
+www-data 권한을 가진 가상 유저가 로그인할 때 에러 발생
+</p>
+
+<pre class="shell">
+$ <em>sudo pure-pw useradd cat -u www-data -d /var/wdd/cat -m</em>
+
+</pre>
+
+<p>
+위와 같이 cat 유저를 추가하고 해당 유저로 로그인하려고 하면 다음 에러가 발생한다.
+</p>
+
+<blockquote>
+<p>
+530 Sorry, but I can't trust you
+</p>
+</blockquote>
+
+<p>
+www-data 유저의 uid 값이 33인데 PureFTP에 접속 가능한 최소 uid 값이 1000으로 지정되어 있기 때문이다. /etc/pure-ftpd/MinUID 파일의 1000을 33으로 수정하고 PureFTP 서비스를 재시작한다.
+</p>
+
+</body>
+</html>

@@ -1,0 +1,69 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Bash</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>Bash</h1>
+
+<p>Last updated: 2008-12-03</p>
+
+<h2>Link</h2>
+
+<ul>
+<li><a href="http://www.faqs.org/docs/bashman/bashref_81.html">Bash Reference Manual: Command Line Editing</a></li>
+</ul>
+
+<h2>Key</h2>
+
+<pre class="shell">
+C-a		라인의 처음으로
+
+C-e		라인의 끝으로
+
+M-f		한 단어 앞으로
+
+M-b		한 단어 뒤로
+
+C-k		커서 위치에서 라인 끝까지 삭제
+
+C-u		커서 위치에서 라인 처음까지 삭제
+
+M-d		커서 위치에서 현재 단어의 끝까지 삭제
+
+M-&lt;Backspace&gt;	커서 위치에서 현재 단어의 처음까지 삭제
+
+C-w		커서 위치에서 이전 공백까지 삭제
+
+C-y		최근에 삭제한 내용 붙여넣기
+
+C-_		Undo
+
+C-r		Reverse search
+</pre>
+
+<h2>Reverse search</h2>
+
+<pre class="shell">
+$
+(reverse-i-search)`':						<em># C-r</em>
+(reverse-i-search)`s': sudo vi sshd_config			<em># s</em>
+(reverse-i-search)`su': sudo vi sshd_config			<em># u</em>
+(reverse-i-search)`sud': sudo vi sshd_config			<em># d</em>
+
+(reverse-i-search)`sud': sudo find / -name "sshd_config"	<em># C-r</em>
+$ sudo find / -name "sshd_config"				<em># ESC</em>
+</pre>
+
+<h2>More Information</h2>
+
+<pre class="shell">
+$ <em>info readline</em>
+</pre>
+
+</body>
+
+</html>

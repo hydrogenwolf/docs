@@ -1,0 +1,135 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>find</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>find</h1>
+
+<ul>
+<li>http://www.oracle.com/technology/global/kr/pub/articles/calish-find.html</li>
+</ul>
+
+<p>
+리눅스의 많은 다른 명령어와 달리, find 명령어는 -r 옵션이나 -R 옵션이 없어도 기본적으로 서브 디렉토리까지 포함해서 검색한다.
+</p>
+
+<h3> 현재 디렉토리에서 이름이 z로 시작하는 파일을 찾아 출력 </h3>
+
+<pre class="shell">
+find . -name "z*" -print
+</pre>
+
+<p>
+기본 액션인 print는 생략 가능. 따라서 아래와 같은 줄여 쓰는 것이 가능하다.
+</p>
+
+<pre class="shell">
+find . -name "z*"
+</pre>
+
+<blockquote>
+<p>
+타겟 디렉토리도 생략 가능한 버전이 있지만, 모든 버전이 그런 것은 아니므로 될 수 있으면 타겟 디렉토리는 생략하지 않는다.
+</p>
+</blockquote>
+
+<h3> 현재 디렉토리 대신 루트 디렉토리에서부터 검색 </h3>
+
+<pre class="shell">
+find / -name "z*"
+</pre>
+
+<h3> 간단하게 출력(print)하는 대신 상세하게 출력(ls) </h3>
+
+<pre class="shell">
+find / -name "z*" -ls
+</pre>
+
+<h3> (권한이 없다는 등의) 오류 메시지 필터링 </h3>
+
+<pre class="shell">
+find / -name "z*" -ls 2&gt;/dev/null
+</pre>
+
+<h3> z로 시작하는 디렉토리 검색 </h3>
+
+<pre class="shell">
+find / -name "z*" -type d -ls
+</pre>
+
+<h3> 대소문자 구분 없이 검색. (확장자가 java인 파일은 물론 Java, JAVA인 파일도 검색) </h3>
+
+<pre class="shell">
+find / -iname "*.java" -ls
+</pre>
+
+<p>
+루트 디렉토리에서부터 검색은 시스템에 상당한 부하를 준다. 과도한 사용은 자제할 것.
+</p>
+
+<h3> 현재 디렉토리에 파일 크기가 50메가 이상인 모든 파일 검색 </h3>
+
+<pre class="shell">
+find . -size +50000k -ls
+</pre>
+
+<h3> 최근 2시간 동안 수정된 모든 파일 검색 </h3>
+
+<pre class="shell">
+find . -mtime -2 -ls
+</pre>
+
+<h3> 최근 2분 이내 읽은(액세스한) 모든 파일 검색 </h3>
+
+<pre class="shell">
+find . -amin -2 -ls
+</pre>
+
+<h3> 특정 조건에 해당하는 파일 삭제 </h3>
+
+<h4> 심볼릭 링크 검색 및 삭제 </h4>
+
+<pre class="shell">
+$ <em>find . -type l</em>
+
+중략
+
+$ <em>find . -type l -exec rm {} \;</em>
+
+</pre>
+
+<p> {}은 찾은 파일을 의미, 명령 문자열의 끝을 나타내는 세미콜론 앞에 백슬래시를 붙여서 이스케이프. </p> 
+
+<h4> 생성한지 40일 이상되는 파일 검색 및 삭제 </h4>
+
+<pre class="shell">
+$ <em>find . -ctime +40 -ls</em>
+10691890 14396 -rw-r--r--   1 hw       hw       14720170 Jan 16 13:34 ./Economic\ Reforms\ Change\ Burmese\ Banks-360p.mp4
+10690613 13332 -rw-r--r--   1 hw       hw       13629121 Jan 16 13:33 ./Prayers\ for\ Nature\ at\ Surf\ City\ Beach-360p.mp4
+10691159 13588 -rw-r--r--   1 hw       hw       13889685 Jan 16 13:33 ./Young\ Entrepreneur\ Creates\ Hospital\ for\ iPhones-360p.mp4
+10691391 14520 -rw-r--r--   1 hw       hw       14844920 Jan 16 13:33 ./Parent\ Libraries\ in\ Rural\ Schools\ in\ Vietnam-360p.mp4
+10691389 16044 -rw-r--r--   1 hw       hw       16405726 Jan 16 13:33 ./Mangrove\ Trees\ Fight\ Poverty\ in\ Eritrean\ Village-360p.mp4
+
+중략
+
+$ <em>find . -ctime +40 -ls -delete</em>
+10691890 14396 -rw-r--r--   1 hw       hw       14720170 Jan 16 13:34 ./Economic\ Reforms\ Change\ Burmese\ Banks-360p.mp4
+10690613 13332 -rw-r--r--   1 hw       hw       13629121 Jan 16 13:33 ./Prayers\ for\ Nature\ at\ Surf\ City\ Beach-360p.mp4
+10691159 13588 -rw-r--r--   1 hw       hw       13889685 Jan 16 13:33 ./Young\ Entrepreneur\ Creates\ Hospital\ for\ iPhones-360p.mp4
+10691391 14520 -rw-r--r--   1 hw       hw       14844920 Jan 16 13:33 ./Parent\ Libraries\ in\ Rural\ Schools\ in\ Vietnam-360p.mp4
+10691389 16044 -rw-r--r--   1 hw       hw       16405726 Jan 16 13:33 ./Mangrove\ Trees\ Fight\ Poverty\ in\ Eritrean\ Village-360p.mp4
+
+중략
+
+</pre>
+
+<p>
+상세 보기를 위해 -ls 옵션 사용. 파일 삭제를 위한 전용 옵션 -delete 사용.
+</p>
+
+</body>
+</html>

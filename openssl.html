@@ -1,0 +1,39 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>openssl</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>openssl</h1>
+
+<ul>
+<li>작성: 2012년 9월 7일</li>
+</ul>
+
+<h2> MD5 Checksum </h2>
+
+<pre class="shell">
+$ <em>openssl md5 <var>filename</var></em>
+MD5(<var>filename</var>)= 3d999b6dde130122f4814836133d7cb0
+</pre>
+
+<h2> Base64 </h2>
+
+<h4> Decode </h4>
+
+<pre class="shell">
+$ <em>openssl base64 -d -in <var>infile</var> -out <var>outfile</var></em>
+
+</pre>
+
+<h4> Encode </h4>
+
+<pre class="shell">
+$ <em>openssl base64 -in <var>infile</var> -out <var>outfile</var></em>
+
+</pre>
+
+</html>

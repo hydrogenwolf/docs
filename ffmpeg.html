@@ -1,0 +1,313 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>ffmpeg</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>ffmpeg</h1>
+
+<ul>
+<li>작성: 2010년 5월 17일</li>
+<li>수정: 2011년 1월 27일</li>
+</ul>
+
+<h2> 파일 정보 </h2>
+
+<p>
+옵션 -i 뒤에 원본(input) 파일을 적는다.
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.AVI</em>
+FFmpeg version 0.5, Copyright (c) 2000-2009 Fabrice Bellard, et al.
+  configuration: --prefix=/usr --libdir=/usr/lib --shlibdir=/usr/lib --enable-libfaac
+  libavutil     49.15. 0 / 49.15. 0
+  libavcodec    52.20. 0 / 52.20. 0
+  libavformat   52.31. 0 / 52.31. 0
+  libavdevice   52. 1. 0 / 52. 1. 0
+  libswscale     0. 7. 1 /  0. 7. 1
+  libpostproc   51. 2. 0 / 51. 2. 0
+  built on Nov  6 2009 19:05:03, gcc: 4.1.2 20080704 (Red Hat 4.1.2-46)
+Input #0, avi, from 'FILENAME.AVI':
+  Duration: 00:02:19.71, start: 0.000000, bitrate: 909 kb/s
+    Stream #0.0: Video: mpeg4, yuv420p, 480x360 [PAR 1:1 DAR 4:3], 30 tbr, 30 tbn, 30 tbc
+    Stream #0.1: Audio: mp3, 16000 Hz, stereo, s16, 128 kb/s
+At least one output file must be specified
+</pre>
+
+<p>
+재생 시간, 비트레이트, 비디오 코덱, 화면 해상도, 오디오 코덱 등을 확인할 수 있다.
+</p>
+
+<h2> 지원 포맷 </h2>
+
+<p>
+현재 시스템에 설치된 ffmpeg이 지원하는 파일 포맷을 알려주는 옵션 -formats
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -formats</em>
+
+중략
+
+File formats:
+ D. = Demuxing supported
+ .E = Muxing supported
+ --
+  E 3g2             3GP2 format
+  E 3gp             3GP format
+ D  4xm             4X Technologies format
+ D  IFF             IFF format
+ D  ISS             Funcom ISS format
+ D  MTV             MTV format
+ DE RoQ             raw id RoQ format
+ D  aac             raw ADTS AAC
+ DE ac3             raw AC-3
+
+후략
+
+</pre>
+
+<h2> 지원 코덱 </h2>
+
+<p>
+현재 시스템에 설치된 ffmpeg이 지원하는 코덱을 알려주는 옵션 -codecs
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -codecs</em>
+
+중략
+
+Codecs:
+ D..... = Decoding supported
+ .E.... = Encoding supported
+ ..V... = Video codec
+ ..A... = Audio codec
+ ..S... = Subtitle codec
+ ...S.. = Supports draw_horiz_band
+ ....D. = Supports direct rendering method 1
+ .....T = Supports weird frame truncation
+ ------
+ D V D  4xm             4X Movie
+ D V D  8bps            QuickTime 8BPS video
+ D A    8svx_exp        8SVX exponential
+ D A    8svx_fib        8SVX fibonacci
+ D V D  FRWU            Forward Uncompressed
+ DEA    aac             Advanced Audio Coding
+ D V D  aasc            Autodesk RLE
+ DEA    ac3             ATSC A/52A (AC-3)
+
+후략
+
+</pre>
+
+<blockquote>
+<p>
+보는 바와 같이 디코딩만 지원하는 코덱도 있고, 디코딩/인코딩 모두를 지원하는 코덱도 있다.
+</p>
+</blockquote>
+
+<h2> Default 값 </h2>
+
+<p>
+주요 옵션 중 숫자 값으로 지정해야 되는 것들이 있다. 따로 지정하지 않으면 아래의 Default 값으로 지정된다.
+</p>
+
+<h4> 비디오 비트레이트 </h4>
+-b : 200k
+
+<h4> 오디오 비트레이트 </h4>
+-ab : 64k
+
+<h4> 오디오 샘플링 Frequency </h4>
+-ar : 44100
+
+<h2> AVI 파일을 MP4 파일로 변환 </h2>
+
+<h4> 원본 파일 정보 확인 </h4>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.AVI</em>
+
+중략
+
+  Duration: 01:28:16.75, start: 0.000000, bitrate: 1108 kb/s
+    Stream #0.0: Video: mpeg4, yuv420p, 640x480 [PAR 1:1 DAR 4:3], 29.97 tbr, 29.97 tbn, 29.97 tbc
+    Stream #0.1: Audio: mp3, 48000 Hz, 2 channels, s16, 128 kb/s
+</pre>
+
+<p>
+위와 같이 대부분의 avi 파일은 비디오 코덱이 mp4 파일의 비디오 코덱과 같은 mpeg4다. 이것은 오디오 부분만 변환해서 avi 파일을 mp4 파일로 만들 수 있다는 것을 의미한다. 비디오 부분은 변환하지 않으므로 속도가 빠르고 화질 저하도 피할 수 있다.
+</p>
+
+<h4> 비디오 부분은 변환하지 않으면서 파일 포맷 변환하기 </h4>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.AVI -vcodec copy FILENAME.MP4</em>
+
+또는 
+
+$ <em>ffmpeg -i FILENAME.AVI -vcodec copy -acodec aac FILENAME.MP4</em>
+</pre>
+
+<p>
+비디오 부분은 그냥 복사하고 오디오 코덱만 mp4 파일의 그것인 aac로 변환하려면 위와 같이 한다. 오디오 코덱이 aac인 것을 반드시 명시할 필요는 없다. ffmpeg은 결과(output) 파일의 확장자에서 적절한 코덱을 유추한다.
+</p>
+
+<p>
+어차피 같은 비디오 코덱(mpeg4)이므로 -vcodec copy 부분의 필요성에 의구심을 가질 수 있다. 하지만, 그 부분을 생략하면 비디오도 변환하게 되어 상당한 시간이 더 소요된다. 게다가 default 비디오 비트레이트인 200k가 적용되어 화질도 매우 안 좋아진다.
+</p>
+
+<blockquote>
+<p>
+-ab 옵션이나 -ar 옵션 등 결과물의 오디오 퀄리티에 영향을 주는 값들을 함께 설정할 수도 있다. 하지만, 오디오의 경우 default 값들이 양호한 편이다. default 오디오 비트레이트가 64k다. 이 정도면 라디오 음질. 
+</p>
+</blockquote>
+
+<h2> WMV 파일을 MP4 파일로 변환 </h2>
+
+<h4> 원본 파일 정보 확인 </h4>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.WMV</em>
+
+중략
+
+  Duration: 00:30:01.83, start: 3.000000, bitrate: 6262 kb/s
+    Stream #0.0: Video: wmv3, yuv420p, 1920x1080, 29.97 tbr, 1k tbn, 1k tbc
+    Stream #0.1: Audio: wmav2, 44100 Hz, 2 channels, s16, 256 kb/s
+</pre>
+
+<p>
+위와 같이 wmv 파일은 mp4 파일과는 비디오, 오디오 코덱 모두가 다르므로 avi 파일에서의 팁을 사용할 수 없다. 그냥 우직하게 변환해야 한다.
+</p>
+
+<h4> 기본 변환 </h4>
+
+<p>
+동영상 변환 시에 가장 중요한 것은 비디오 비트레이트 값이다. 비트레이트를 낮게 잡으면 결과물의 화질이 떨어진다. 비트레이트를 막연히 높게 잡으면 결과물의 파일 크기가 너무 커진다.
+</p>
+
+<blockquote>
+<p>
+비트레이트 값을 지정하지 않으면 default 비디오 비트레이트인 200k로 설정된다. 이 값은 아주 낮은 해상도의 동영상에 적합한 값이다.
+</p>
+</blockquote>
+
+<p>
+비트레이트 값을 정하기 어려울 때는 -sameq 옵션이 유용하다. 이 옵션은 원본과 동일한 화질로 결과물을 만들어준다.
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.WMV -sameq FILENAME.MP4</em>
+
+또는
+
+$ <em>ffmpeg -i FILENAME.WMV -sameq -vcodec mpeg4 -acodec aac FILENAME.MP4</em>
+</pre>
+
+<h4> 해상도를 줄여서 변환 하기 </h4>
+
+<p>
+해상도는 -s 옵션, 비디오 비트레이트는 -b 옵션으로 지정한다. 해상도를 640x360으로 줄이면서 비트레이트를 667k로 지정했다.
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.WMV -s 640x360 -b 667k FILENAME.MP4</em>
+</pre>
+
+<h5> Why 667k </h5>
+
+<ol>
+<li>해상도가 1920x1080에서 640x360으로 변하므로 가로/세로 길이는 1/3, 면적은 1/9로 줄어든 것이 된다.</li>
+<li>원본의 비트레이트가 6262k인데 오디오 비트레이트가 256k다. 따라서 비디오 비트레이트는 6262k에서 256k을 뺀 6006k 정도다.</li>
+<li>이 6006k를 원본과 대상 해상도의 면적 차이인 9로 나눈 값인 667k가 적절한 비트레이트.</li>
+</ol>
+
+<p>
+결과물의 해상도만 가지고 비트레이트를 정할 수도 있지만, 원본 화질(비트레이트)과 결과물의 해상도에 따라 대상 비트레이트를 정하는 것이 더욱 합리적이다. 예를 들어 원본 화질이 매우 낮다면 굳이 대상 비트레이트를 높게 잡을 필요가 없다.
+</p>
+
+<h5> Why Not -sameq </h5>
+
+<p>
+해상도를 줄일 때 비트레이트를 직접 지정하는 대신 -sameq 옵션을 사용하면 어떨까. 테스트 결과 상당한 오버헤드가 있다. 즉, 원본의 비트레이트보다는 낮지만 줄어든 해상도에 비해 불필요하게 높은 비트레이트의 결과물을 보여주었다.
+</p>
+
+<h2> K3G 파일을 MP4 파일로 변환 </h2>
+
+<ul>
+<li>K3G 파일은 비디오 코덱은 mpeg4, 오디오 코덱은 qcelp.</li>
+<li>오디오 qcelp가 바로 aac로 변환이 되지 않아서 오디오만 mp2로 추출한 다음, 그것을 오디오로 하는 avi를 만들고 그 avi를 mp4로 변환했다.</li>
+</ul>
+
+<blockquote>
+<p>
+mp3, mp2 등의 오디오는 aac로 변환이 잘 됐으나 wav, qcelp, sevc 등의 오디오는 aac로 변환하려고 하면 오류가 발생했다.
+</p>
+</blockquote>
+
+<h4> 오디오 추출 </h4>
+
+<p>
+비디오 부분은 제외하고 오디오 부분만 추출해서 저장할 때는 -vn 옵션을 사용한다.
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.K3G -vn AUDIO.MP2</em>
+</pre>
+
+<h4> 비디오, 오디오 합치기 </h4>
+
+<p>
+각기 다른 파일의 비디오와 오디오를 합쳐서 하나의 동영상을 만들 수 있다.
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.K3G -i AUDIO.MP2 -vcodec copy FILENAME.AVI</em>
+</pre>
+
+<h4> mp4 동영상으로 변환 </h4>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.AVI -vcodec copy FILENAME.mp4</em>
+</pre>
+
+<h2> FLAC 파일을 MP3 파일로 변환 </h2>
+
+<p>
+default 오디오 비트레이트가 64k다. 오디오 파일로서는 낮은 편이므로 -ab 옵션으로 오디오 비트레이트를 명시해주는 것이 좋다.
+</p>
+
+<pre class="shell">
+$ <em>ffmpeg -i FILENAME.FLAC -ab 192k FILENAME.MP3</em>
+</pre>
+
+<ul>
+<li>32 kbit/s - AM 품질</li>
+<li>96 kbit/s - FM 품질</li>
+<li>100–160 kbit/s - 표준 비트레이트 품질</li>
+<li>192 kbits/s - 대부분의 사람이 시디 원본과 구분할 수 없는 품질</li>
+<li>224–320 kbit/s - VBR to highest MP3 quality.</li>
+</ul>
+
+<p>
+출처: http://en.wikipedia.org/wiki/Bit_rate
+</p>
+
+<blockquote>
+<p>
+VBR로 변환하고 싶었으나 잘 안됨. 일단 CBR로 만족.
+</p>
+</blockquote>
+
+<h2> Link </h2>
+
+<a href="http://www.ffmpeg.org/ffmpeg-doc.html">FFmpeg Documentation</a>
+
+</body>
+</html>

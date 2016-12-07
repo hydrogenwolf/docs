@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Apache</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>Apache</h1>
+
+<p>
+Last updated: 2009-04-29
+</p>
+
+<h2>Link</h2>
+
+<ul>
+<li><a href="http://httpd.apache.org/">The Apache HTTP Server Project</a></li>
+<li><a href="http://httpd.apache.org/docs/2.0/ko/vhosts/examples.html">가상호스트 예</a></li>
+</ul>
+
+<h2>Install</h2>
+
+<p>
+<a href="http://b.mytears.org/2008/02/627">소스를 직접 빌드해서 설치한 것과 패키지 관리자를 이용해서 설치한 것의 차이</a>
+</p>
+
+<h2>실행 스크립트 파일 위치</h2>
+
+<p>
+소스 설치
+</p>
+
+<pre class="shell">
+$ <em>find / -name apachectl</em>
+/usr/local/apache2/bin/apachectl
+</pre>
+
+<p>
+배포판 설치 - CentOS 5
+</p>
+
+<pre class="shell">
+$ <em>find / -name apachectl</em>
+/usr/sbin/apachectl
+</pre>
+
+<h2>설정 파일 위치</h2>
+
+<p>
+소스 설치
+</p>
+
+<pre class="shell">
+$ <em>find / -name httpd.conf</em>
+/usr/local/apache2/conf/httpd.conf
+/usr/local/apache2/conf/original/httpd.conf
+/root/httpd-2.2.8/docs/conf/httpd.conf
+</pre>
+
+<p>
+배포판 설치 - CentOS 5
+</p>
+
+<pre class="shell">
+$ <em>find / -name httpd.conf</em>
+/etc/httpd/conf/httpd.conf
+</pre>
+
+<h2>VirtualHost 설정</h2>
+
+<p>
+IP 주소 하나에 여러 개의 이름 기반 웹사이트를 운영하는 경우 설정 예.
+</p>
+
+<pre class="shell">
+NameVirtualHost *:80		<em># Incoming IP: ANY, Incoming Port: 80</em>
+
+&lt;VirtualHost *:80&gt;
+DocumentRoot /www/example1
+ServerName www.example1.com
+&lt;/VirtualHost&gt;
+
+&lt;VirtualHost *:80&gt;
+DocumentRoot /www/example2
+ServerName example2.org
+ServerAlias *.example2.org lg.goldstar.com
+&lt;/VirtualHost&gt; 
+</pre>
+
+<ul>
+<li>가장 처음에 나오는 VirtualHost가 디폴트 VirtualHost</li>
+<li>VirtualHost를 사용하는 경우 기존 DocumentRoot 설정은 무시.</li>
+<li>VirtualHost 설정을 확인하는데 httpd -S 명령이 유용. (CentOS)</li>
+<li><a href="http://httpd.apache.org/docs/2.0/ko/vhosts/examples.html">VirtualHost Examples</a></li>
+</ul>
+
+</body>
+</html>

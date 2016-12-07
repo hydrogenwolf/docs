@@ -1,0 +1,132 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<title>sendmail</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>sendmail</h1>
+
+<ul>
+<li>Author : HW</li>
+<li>Date : 2006.12.07</li>
+</ul>
+
+<ul><li>Environment
+<pre class="shell">
+$ <em>cat /proc/version</em>
+Linux version 2.6.9-34.ELsmp (buildcentos@build-i386) (gcc version 3.4.5 20051201 (Red Hat 3.4.5-2)) #1 SMP Wed Mar 8 00:27:03 CST 2006
+
+$ <em>cat /etc/issue</em>
+CentOS release 4.3 (Final)
+Kernel \r on an \m
+
+$ <em>rpm -qa | grep sendmail</em>
+sendmail-8.13.1-2
+
+$ <em>yum list installed | grep sendmail</em>
+sendmail.i386                            8.13.1-2               installed
+</pre>
+</li></ul>
+
+<h2>내부에서는 접근 가능, 외부에서는 접근 불가능?</h2>
+
+<p>
+내부에서 127.0.0.1 IP와 자신의 공인(218.159.92.107) IP에 대해서 접근을 시도해본다.<br />
+내부에서도 자신의 공인 IP로는 접근이 되지 않을 때는 다음 상황을 체크한다.
+</p>
+
+<pre class="shell">
+$ <em>netstat -ln</em>
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address               Foreign Address             State
+tcp        0      0 0.0.0.0:32768               0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:7                   0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:3306                0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:111                 0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:21                  0.0.0.0:*                   LISTEN
+tcp        0      0 218.159.92.107:53           0.0.0.0:*                   LISTEN
+tcp        0      0 127.0.0.1:53                0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:631                 0.0.0.0:*                   LISTEN
+<em>tcp        0      0 127.0.0.1:25                0.0.0.0:*                   LISTEN</em>
+tcp        0      0 127.0.0.1:953               0.0.0.0:*                   LISTEN
+tcp        0      0 :::80                       :::*                        LISTEN
+tcp        0      0 :::22                       :::*                        LISTEN
+tcp        0      0 ::1:953                     :::*                        LISTEN
+tcp        0      0 :::443                      :::*                        LISTEN
+udp        0      0 0.0.0.0:32768               0.0.0.0:*
+udp        0      0 0.0.0.0:32769               0.0.0.0:*
+udp        0      0 218.159.92.107:53           0.0.0.0:*
+udp        0      0 127.0.0.1:53                0.0.0.0:*
+udp        0      0 0.0.0.0:701                 0.0.0.0:*
+udp        0      0 0.0.0.0:111                 0.0.0.0:*
+udp        0      0 0.0.0.0:631                 0.0.0.0:*
+udp        0      0 :::32770                    :::*
+Active UNIX domain sockets (only servers)
+Proto RefCnt Flags       Type       State         I-Node Path
+unix  2      [ ACC ]     STREAM     LISTENING     5532   /tmp/mysql.sock
+unix  2      [ ACC ]     STREAM     LISTENING     5693   /tmp/.font-unix/fs7100
+unix  2      [ ACC ]     STREAM     LISTENING     5643   /dev/gpmctl
+unix  2      [ ACC ]     STREAM     LISTENING     5250   /var/run/acpid.socket
+unix  2      [ ACC ]     STREAM     LISTENING     5745   /var/run/dbus/system_bus_socket
+</pre>
+
+<ul><li>/etc/mail/sendmail.cf
+<pre class="shell">
+# 다음 라인을 찾아 Addr 부분을 제거한다
+O DaemonPortOptions=Port=smtp,<em>Addr=127.0.0.1</em>, Name=MTA 
+
+# 즉, 다음과 같이 수정한다
+O DaemonPortOptions=Port=smtp, Name=MTA
+</pre>
+</li></ul>
+
+<p>바뀐 설정을 적용하기 위해 sendmail 재시작</p>
+<pre class="shell">
+$ <em>/etc/init.d/sendmail restart</em>
+sendmail를 종료하고 있습니다:                              [  확인  ]
+sm-client을 종료하고 있습니다:                             [  확인  ]
+sendmail (을)를 시작합니다:                                [  확인  ]
+sm-client을 시작하고 있습니다:                             [  확인  ]
+</pre>
+
+<p>아래와 같이 바뀐 것을 확인한다.</p>
+<pre class="shell">
+$ <em>netstat -ln</em>
+Active Internet connections (only servers)
+Proto Recv-Q Send-Q Local Address               Foreign Address             State
+tcp        0      0 0.0.0.0:32768               0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:7                   0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:3306                0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:111                 0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:21                  0.0.0.0:*                   LISTEN
+tcp        0      0 218.159.92.107:53           0.0.0.0:*                   LISTEN
+tcp        0      0 127.0.0.1:53                0.0.0.0:*                   LISTEN
+tcp        0      0 0.0.0.0:631                 0.0.0.0:*                   LISTEN
+<em>tcp        0      0 0.0.0.0:25                  0.0.0.0:*                   LISTEN</em>
+tcp        0      0 127.0.0.1:953               0.0.0.0:*                   LISTEN
+tcp        0      0 :::80                       :::*                        LISTEN
+tcp        0      0 :::22                       :::*                        LISTEN
+tcp        0      0 ::1:953                     :::*                        LISTEN
+tcp        0      0 :::443                      :::*                        LISTEN
+udp        0      0 0.0.0.0:32768               0.0.0.0:*
+udp        0      0 0.0.0.0:32769               0.0.0.0:*
+udp        0      0 218.159.92.107:53           0.0.0.0:*
+udp        0      0 127.0.0.1:53                0.0.0.0:*
+udp        0      0 0.0.0.0:701                 0.0.0.0:*
+udp        0      0 0.0.0.0:111                 0.0.0.0:*
+udp        0      0 0.0.0.0:631                 0.0.0.0:*
+udp        0      0 :::32770                    :::*
+Active UNIX domain sockets (only servers)
+Proto RefCnt Flags       Type       State         I-Node Path
+unix  2      [ ACC ]     STREAM     LISTENING     5532   /tmp/mysql.sock
+unix  2      [ ACC ]     STREAM     LISTENING     5693   /tmp/.font-unix/fs7100
+unix  2      [ ACC ]     STREAM     LISTENING     5643   /dev/gpmctl
+unix  2      [ ACC ]     STREAM     LISTENING     5250   /var/run/acpid.socket
+unix  2      [ ACC ]     STREAM     LISTENING     5745   /var/run/dbus/system_bus_socket
+</pre>
+
+</body>
+</html>

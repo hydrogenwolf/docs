@@ -1,0 +1,147 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>System Information</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>System Information</h1>
+
+<h2>OS</h2>
+
+<pre class="shell">
+$ <em>uname -a</em>
+Linux yourhost.yourdomain 2.6.18-53.el5 #1 SMP Mon Nov 12 02:22:48 EST 2007 i686 i686 i386 GNU/Linux
+
+$ <em>cat /proc/version</em>
+Linux version 2.6.18-53.el5 (mockbuild@builder6.centos.org) (gcc version 4.1.2 20070626 (Red Hat 4.1.2-14)) #1 SMP Mon Nov 12 02:22:48 EST 2007
+
+$ <em>cat /etc/issue</em>
+CentOS release 5 (Final)
+Kernel \r on an \m
+</pre>
+
+<h2>CPU</h2>
+
+<pre class="shell">
+$ <em>cat /proc/cpuinfo</em>
+processor       : 0
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      : Intel(R) Pentium(R) 4 CPU 3.00GHz
+stepping        : 3
+cpu MHz         : 2992.850
+cache size      : 2048 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+apicid          : 0
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm constant_tsc pni monitor ds_cpl est cid cx16 xtpr
+bogomips        : 5990.33
+
+processor       : 1
+vendor_id       : GenuineIntel
+cpu family      : 15
+model           : 4
+model name      : Intel(R) Pentium(R) 4 CPU 3.00GHz
+stepping        : 3
+cpu MHz         : 2992.850
+cache size      : 2048 KB
+physical id     : 0
+siblings        : 2
+core id         : 0
+cpu cores       : 1
+apicid          : 1
+fdiv_bug        : no
+hlt_bug         : no
+f00f_bug        : no
+coma_bug        : no
+fpu             : yes
+fpu_exception   : yes
+cpuid level     : 5
+wp              : yes
+flags           : fpu vme de pse tsc msr pae mce cx8 apic mtrr pge mca cmov pat pse36 clflush dts acpi mmx fxsr sse sse2 ss ht tm pbe lm constant_tsc pni monitor ds_cpl est cid cx16 xtpr
+bogomips        : 5984.22
+</pre>
+
+<p>
+'physical id'가 같기 때문에 2개의 CPU가 장착된 것이 아니고, 'cpu cores'가 1이므로 듀얼코어 CPU도 아니다.
+</p>
+
+<p>
+2개의 CPU로 보이는 것은 인텔의 <a href="http://ko.wikipedia.org/wiki/%ED%95%98%EC%9D%B4%ED%8D%BC%EC%8A%A4%EB%A0%88%EB%94%A9">하이퍼스레딩</a> 기술 때문이다. 하이퍼스레딩을 지원하는 CPU인지는 'flags' 필드에 ht 값이 있는 것으로 알 수 있다.
+</p>
+
+<h2>Memory</h2>
+
+<pre class="shell">
+$ <em>cat /proc/meminfo</em>
+MemTotal:      1032712 kB
+MemFree:         22500 kB
+Buffers:         97440 kB
+Cached:         752364 kB
+SwapCached:       1548 kB
+Active:         165108 kB
+Inactive:       784300 kB
+HighTotal:      130496 kB
+HighFree:          248 kB
+LowTotal:       902216 kB
+LowFree:         22252 kB
+SwapTotal:     3020180 kB
+SwapFree:      3007108 kB
+Dirty:             136 kB
+Writeback:           0 kB
+AnonPages:       98496 kB
+Mapped:          28052 kB
+Slab:            34124 kB
+SReclaimable:    17324 kB
+SUnreclaim:      16800 kB
+PageTables:       8036 kB
+NFS_Unstable:        0 kB
+Bounce:              0 kB
+WritebackTmp:        0 kB
+CommitLimit:   3536536 kB
+Committed_AS:   453760 kB
+VmallocTotal:   114680 kB
+VmallocUsed:      4944 kB
+VmallocChunk:   109632 kB
+HugePages_Total:     0
+HugePages_Free:      0
+HugePages_Rsvd:      0
+HugePages_Surp:      0
+Hugepagesize:     2048 kB
+DirectMap4k:      6144 kB
+DirectMap2M:    911360 kB
+</pre>
+
+/proc/cpuinfo 
+<pre class="shell">
+$ <em>free</em>
+             total       used       free     shared    buffers     cached
+Mem:       1032712     983296      49416          0      89056     785980
+-/+ buffers/cache:     108260     924452
+Swap:      3020180       2944    3017236
+</pre>
+
+<p>
+리눅스는 cache 메모리의 최대 크기를 정해두지 않고 할당한 cache 메모리를 능동적으로 반환하지도 않는다. 따라서, 운영 중인 리눅스 시스템에서 메모리의 많은 부분이 cached로 잡혀 있는 것은 이상한 일이 아니다. 
+</p>
+
+<p>
+위 예에서 시스템이 실제 사용 중인 메모리는 983296에서 89056(buffers)와 785980(cached)를 뺀 108260로 볼 수 있다.
+</p>
+
+</body>
+</html>

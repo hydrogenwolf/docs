@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>chkconfig</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> chkconfig </h1>
+
+<p>
+부팅 시, 자동 시작할 서비스를 설정할 수 있다.
+</p>
+
+<h2>Redhat</h2>
+
+<p>
+부팅 시, SSH 데몬 자동 실행
+</p>
+
+<pre class="shell">
+$ <em>chkconfig sshd on</em>
+</pre>
+
+<h2>Debian</h2>
+
+<pre class="shell">
+$ <em>chkconfig</em>
+hw@beta:/var/www/xor/docs$ chkconfig
+apache2                on
+apparmor               off
+atd                    on
+bind9                  on
+
+중략
+
+urandom                0S
+winbind                on
+wpa-ifupdown           0
+x11-common             on
+</pre>
+
+</body>
+</html>

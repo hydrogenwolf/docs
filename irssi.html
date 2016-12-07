@@ -1,0 +1,110 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Irssi</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>Irssi</h1>
+
+<p>Last updated: 2008-11-20</p>
+
+<h2>Link</h2>
+
+<ul>
+<li><a href="http://irssi.org/">Irssi</a></li>
+<li><a href="http://stania.egloos.com/3476835">UTF-8 터미널 환경에서 irssi로 hanirc 이용하기</a></li>
+</ul>
+
+<h2>Download</h2>
+
+<pre class="shell">
+# <em>yum list irssi*</em>
+
+Loading "installonlyn" plugin
+Setting up repositories
+Reading repository metadata in from local files
+</pre>
+
+<p>
+yum에도 나오지 않고 rpm 찾기도 쉽지 않아 개발 사이트에서 소스를 받아 설치.
+</p>
+
+<pre class="shell">
+# <em>wget http://irssi.org/files/irssi-0.8.12.tar.gz</em>
+중략
+
+# <em>wget http://irssi.org/files/irssi-0.8.12.tar.gz.sig</em>
+중략
+
+# <em>gpg --keyserver wwwkeys.pgp.net --recv-keys DDBEF0E1</em>
+
+중략
+
+# <em>gpg --verify irssi-0.8.12.tar.gz.sig</em>
+gpg: Signature made Sat 06 Oct 2007 06:44:26 PM KST using DSA key ID DDBEF0E1
+gpg: Good signature from "The Irssi project <staff@irssi.org>"
+gpg: WARNING: This key is not certified with a trusted signature!
+gpg:          There is no indication that the signature belongs to the owner.
+Primary key fingerprint: 7EE6 5E30 82A5 FB06 AC7C  368D 00CC B587 DDBE F0E1
+
+</pre>
+
+<h2>Install</h2>
+
+<p>
+일반적인 형태의 소스 컴파일 설치. (자세한 것은 소스 디렉토리의 INSTALL 파일 참고)
+</p>
+
+<pre class="shell">
+# <em>./configure</em>
+
+중략
+
+# <em>make</em>
+중략
+
+# <em>su</em>
+Password: 
+
+# <em>make install</em>
+중략
+
+</pre>
+
+<h2>Configuration</h2>
+
+<p>
+아직도 cp949 인코딩을 사용하고 있는 HanIRC 등을 위해 irssi의 recode 기능을 설정할 필요가 있음. (참고: <a href="http://stania.egloos.com/3476835">UTF-8 터미널 환경에서 irssi로 hanirc 이용하기</a>)
+
+</p>
+
+<p>
+irssi 실행 후, 하단 입력 칸에 한줄 씩 다음 내용을 입력할 것. 마지막 save 명령은 이상의 내용을 설정 파일에 저장시킨다.
+</p>
+
+<pre class="shell">
+<em>
+/set recode_autodetect_utf8 OFF
+
+/set recode_fallback cp949
+
+/set recode ON
+
+/set recode_out_default_charset cp949
+
+/set recode_transliterate ON
+
+/save
+</em>
+</pre>
+
+<p>
+irssi를 종료하고, 설정 파일(~/.irssi/config)에 위의 내용이 잘 저장되었는지 확인하고 필요하다면 기본 nick 등도 설정해준다.
+</p>
+
+</body>
+
+</html>

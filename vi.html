@@ -1,0 +1,383 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>vi</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> vi(m) </h1>
+
+<p>
+Last updated: 2009-03-12
+</p>
+
+<h2> Link </h2>
+
+<ul>
+<li><a href="http://docs.freebsd.org/44doc/usd/12.vi/paper.html">An Introduction to Display Editing with Vi</a> - William Joy (<a href="http://ex-vi.sourceforge.net/viin/paper.html">정리</a>)</li>
+<li><a href="http://wiki.kldp.org/KoreanDoc/VI-miniRef-KLDP">VI 레퍼런스 미니 가이드</a> - 유형목</li>
+<li><a href="http://wiki.kldp.org/KoreanDoc/html/Vim_Guide-KLDP/Vim_Guide-KLDP.html">VI 에디터 사용법</a> - 이호석</li>
+<li><a href="http://wiki.kldp.org/wiki.php/DocbookSgml/Vim-KLDP">Vi,Vim활용</a> - 성시창, 송호용</li>
+<li><a href="http://www.viemu.com/a_vi_vim_graphical_cheat_sheet_tutorial.html">Graphical vi-vim Cheat Sheet and Tutorial</a></li>
+</ul>
+
+<h2> 위치 마크 </h2>
+
+<pre class="shell">
+<em>:r !ps -ef</em>
+</pre>
+
+<p>
+ps -ef 실행 결과를 읽어 들임.
+</p>
+
+<pre class="shell">
+<em>ma</em>
+</pre>
+
+<p>
+현재 커서 위치를 마크 a에 저장.
+</p>
+
+<pre class="shell">
+<em>3H</em>
+</pre>
+
+<p>
+화면 맨 위에서 3번째 라인으로 이동.
+</p>
+
+<pre class="shell">
+<em>d`a</em>
+</pre>
+
+<p>
+현재 커서 위치에서 마크 a까지 삭제.
+</p>
+
+<h2> 버퍼(Register) </h2>
+
+<pre class="shell">
+<em>"ayw</em>
+</pre>
+
+<p>
+커서 위치에서 한 단어를 버퍼 a에 저장.
+</p>
+
+<pre class="shell">
+<em>?\&lt;root\&gt;</em>
+</pre>
+
+<p>
+(위쪽 방향으로) 문자열 root (중 단어로 분리 된 것을) 검색.
+</p>
+
+<pre class="shell">
+<em>"aP</em>
+</pre>
+
+<p>
+버퍼 a에 저장되어 있는 것을 (커서 앞에) 붙여 넣기.
+</p>
+
+<pre class="shell">
+<em>:reg</em>
+</pre>
+
+<p>
+전체 버퍼 내용 확인.
+</p>
+
+<h2> 매크로(map) </h2>
+
+<p>
+매크로 지정할 때 사용할 Function 키를 그냥 눌러도 되지만, 될 수 있으면 <a href="http://docs.freebsd.org/44doc/usd/12.vi/paper-6.html#section33">William Joy 아저씨가 말한 대로</a> #2, #3, #4, ...로 사용.
+</p>
+
+<pre class="shell">
+<em>:map #2 j^2wP</em>
+</pre>
+
+<p>
+F2 키에 매크로 할당: 아래로 한줄 내려가서 맨 앞에서 두번째 단어 앞에 붙여넣기
+</p>
+
+<pre class="shell">
+<em>:map #3 ji0<kbd>^[</kbd></em>
+</pre>
+
+<p>
+F3 키에 매크로 할당: 아래로 한줄 이동. 입력 모드로 진입. 0 입력. 입력 모드 탈출.
+</p>
+
+<pre class="shell">
+<em>:map #4 n350<kbd>^A</kbd></em>
+</pre>
+
+<p>
+F4 키에 매크로 할당: 다음 검색 결과에 350을 더한다. (이전에 숫자에 대한 검색이 있었다)
+</p>
+
+<blockquote>
+<p>
+CR(<kbd>^M</kbd>), ESC(<kbd>^[</kbd>), CTRL-A(<kbd>^A</kbd>) 등의 이스케이프 문자를 입력할 때는 CTRL-V(윈도우 환경에서는 CTRL-Q) 사용.
+</p>
+</blockquote>
+
+<h2>CTRL 키</h2>
+
+<h3>
+명령 모드
+</h3>
+
+<pre class="shell">
+<kbd>^R</kbd>	Redo
+<kbd>^L</kbd>	화면 다시 그리기
+<kbd>^V</kbd>	블록 단위 선택 Visual 모드. 윈도우 환경에서는 <kbd>^Q</kbd>
+<kbd>^G</kbd>	현재 파일 정보
+<kbd>^F</kbd>	아래쪽으로 페이지 단위 스크롤
+<kbd>^B</kbd>	위쪽으로 페이지 단위 스크롤
+<kbd>^D</kbd>	아래쪽으로 스크롤
+<kbd>^U</kbd>	위쪽으로 스크롤
+<kbd>^E</kbd>	아래쪽으로 라인 단위 스크롤
+<kbd>^Y</kbd>	위쪽으로 라인 단위 스크롤
+<kbd>^A</kbd>	현재 커서 위치 숫자 증가
+<kbd>^X</kbd>	현재 커서 위치 숫자 감소
+<kbd>^^</kbd>	이전 파일 편집
+</pre>
+
+<h3>
+입력 모드
+</h3>
+
+<pre class="shell">
+<kbd>^V</kbd>	이스케이프 문자 입력. 윈도우 환경에서는 <kbd>^Q</kbd>
+<kbd>^U</kbd>	라인 삭제
+<kbd>^W</kbd>	앞단어 삭제
+<kbd>^T</kbd>	라인 탭
+<kbd>^D</kbd>	라인 백탭
+<kbd>^P</kbd>	자동 완성
+<kbd>^N</kbd>	아래쪽으로 찾으면서 자동 완성
+</pre>
+
+<h2> Search and Substitute </h2>
+
+<pre class="shell">
+<em>:%s/<kbd>^M</kbd>//g</em>
+</pre>
+
+<p>
+문서 전체에서 &lt;CR&gt; 제거.
+</p>
+
+<pre class="shell">
+<em>:s:&lt;/td&gt;&lt;td&gt;:\t:gc</em>
+</pre>
+
+<p>
+구분자로 / 대신 : 사용할 수 있음. 현재 라인의 &lt;/td&gt;&lt;td&gt;를 탭으로 바꿈.
+</p>
+
+<pre class="shell">
+<em>:/aa/ d</em>
+</pre>
+
+<p>
+aa가 포함된 라인을 찾아 삭제. (1번만)
+</p>
+
+<pre class="shell">
+<em>:g/aa/ d</em>
+</pre>
+
+<p>
+aa가 포함된 모든 라인을 찾아 삭제.
+</p>
+
+<pre class="shell">
+<em>:g/aa/ s/bb/cc/</em>
+</pre>
+
+<p>
+aa가 포함된 모든 라인을 찾아 첫번째 나오는 bb를 cc로 바꿈.
+</p>
+
+<pre class="shell">
+<em>:g/aa/ s/bb/cc/g</em>
+</pre>
+
+<p>
+aa가 포함된 모든 라인을 찾아 모든 bb를 cc로 바꿈.
+</p>
+
+<h2>Regular Expression for vi</h2>
+
+<pre class="shell">
+<em>.</em>	줄바꿈 문자를 제외한 아무 문자 하나
+<em>^</em>	라인의 처음
+<em>$</em>	라인의 끝
+<em>[abcd]</em>	a, b, c, d 중 하나
+<em>[a-d]</em>	a, b, c, d 중 하나
+<em>[^abcd]</em>	a, b, c, d가 아닌 하나
+<em>*</em>	앞 문자 0번 이상
+<em>\+</em>	앞 문자 1번 이상
+<em>\{m,n\}</em>	앞 문자 m번 이상, n번 이하
+<em>\&lt;<var>pattern</var>\&gt;</em>	<var>pattern</var>이 단어로 분리 된 경우만 매치
+<em>\(<var>pattern</var>\)</em>	Grouping. 매치된 문자열 그룹은 \1, \2, \3, ...
+<em>&amp;</em>	매치된 전체 문자열
+<em>\n</em>	줄바꿈 문자
+<em>\t</em>	탭 문자
+<em>\s</em>	공백 문자
+<em>\S</em>	공백 문자가 아닌 문자
+</pre>
+
+<blockquote>
+<p>
++, {}, &lt;&gt;, (), 기호는 이스케이프해서 사용하는 것 유의.
+</p>
+</blockquote>
+
+<pre class="shell">
+<em>:%s/shell&gt;/shell\&amp;gt;/gc</em>
+</pre>
+
+<p>
+<var>shell&gt;</var>를 <var>shell&amp;gt;</var>로 변환. 변환될 문자열 중 &amp; 기호를 이스케이프한 것에 유의.
+</p>
+
+<pre class="shell">
+<em>:%s/%\(F[0-9]*\)%/{\1}/gc</em>
+</pre>
+
+<p>
+<var>%F05%</var>를 <var>{F05}</var>로, <var>%F002%</var>를 <var>{F002}</var>로, ...
+</p>
+
+<pre class="shell">
+<em>:%s/S2E\([0-9]\+\)/S2F\1/gc</em>
+</pre>
+
+<p>
+<var>S2E1</var>을 <var>S2F1</var>으로, <var>S2E2</var>를 <var>S2F2</var>로, ...
+</p>
+
+<pre class="shell">
+<em>:%s:&lt;p&gt;\(.*\)&lt;/p&gt;:&lt;p&gt;<kbd>^M</kbd>\1<kbd>^M</kbd>&lt;/p&gt;:gc</em>
+</pre>
+
+<p>
+구분자로 / 대신 : 사용 가능. p 태그와 내용 사이에 줄바꿈 삽입.
+</p>
+
+<pre class="shell">
+<em>:%s/\["\([^"]*\)"\]/\['\1'\]/gc</em>
+</pre>
+
+<p>
+<var>["foo"]</var>를 <var>['foo']</var>로, <var>["bar"]</var>를 <var>['bar']</var>로. Ungreedy 지시자(.*?)가 통하지 않아 대신 [^"]* 사용.
+</p>
+
+<pre class="shell">
+<em>%s/CURUSER\['\([^']*\)'\]/USER->\1/gc</em>
+</pre>
+
+<p>
+<var>CURUSER['uploaded']</var>를 <var>USER->uploaded</var>로.
+</p>
+
+<h2>Options</h2>
+
+<ul>
+<li>전역 설정 파일은 /etc/vimrc, 각 사용자 설정 파일은 ~/.vimrc</li>
+<li>Option 앞에 no를 붙이면 반대 의미</li>
+</ul>
+
+<pre class="shell">
+<em>:set ai</em>	AutoIndent. 새 라인을 시작할 때, 자동으로 앞 라인만큼 들여쓰기.
+<em>:set si</em>	SmartIndent. AutoIndent는 물론 '{'로 끝나는 라인의 다음은 추가 들여쓰기. 
+<em>:set ic</em>	검색 시 대소문자 구분 안함 
+<em>:set sw=<var>n</var></em>	ShiftWidth. <em>&gt;</em> 키 사용 시 이동 거리
+<em>:set ts=<var>n</var></em>	TabStop
+<em>:set fencs=utf-8,cp949</em>	utf-8을 기본 파일 인코딩으로, 추가적으로 cp949 파일도 지원.
+<em>:set wildmode=longest,list</em> bash과 비슷하게 파일 이름이 자동 완성되도록 한다.
+<em>:set paste</em>	클립보드에서 붙여넣기할 때 Auto Indent가 적용되지 않도록 한다.
+</pre>
+
+<h2>문자 인코딩</h2>
+
+<p>
+vi에서 직접적으로 문자 인코딩을 지정하는 것 보다 시스템 로케일을 수정해서 vi 문자 인코딩을 간접적으로 지정하는 방법이 유용하다. 시스템 로케일을 수정하기 위해 관리자 권한을 가질 필요는 없다. 쉘 상에서 export 명령으로 현재 세션의 로케일을 지정할 수 있다.
+</p>
+
+<pre class="shell">
+$ <em>export LANG="ko_KR.UTF-8"</em>
+</pre>
+
+<p>
+접속할 때마다 똑같이 반복하지 않으려면 홈디렉토리의 환경 설정 파일(예 .bashrc)에 넣어두는 것이 좋을 것이다.
+</p>
+
+<p>
+시스템 로케일과 인코딩이 다른 파일을 편집할 때는 enc(ENCoding)로 파일의 인코딩을 직접 지정한다. 보통은 아래와 같이 터미널의 인코딩 tenc(TerminalENCoding)도 함께 지정해야 할 것이다.
+</p>
+
+<pre class="shell">
+<em>:set enc=euc-kr tenc=utf-8</em>	# 파일: euc-kr, 터미널: utf-8
+</pre>
+
+<p>
+이것으로 끝이라고 생각하면 오산. 현재 파일을 다시 불러오도록 (:e 명령) 해야 제대로 보이기 시작한다.
+
+</p>
+
+<p>
+위의 예에서 fenc를 따로 지정하지 않으면 저장할 때 euc-kr 인코딩으로 저장할 것이다. utf-8 인코딩으로 변경해서 저장하고 싶다면 아래와 같이 지정해둔다.
+</p>
+
+<pre class="shell">
+<em>:set fenc=utf-8</em>
+</pre>
+
+<p>
+인코딩 이름으로 사용할 수 있는 것들은 다음 도움말을 참고한다.
+</p>
+
+<pre class="shell">
+<em>:help encoding-values</em>
+</pre>
+
+<p>
+인코딩 문제 복잡하게 하지 말고 간단하게 해결하자. 다음 옵션을 기본 설정에 추가할 것. euc-kr 대신 cp949를 사용한 건 윈도우 시스템과의 호환성 때문, euc-kr 인코딩은 윈도우용 vim에선 인식하지 않는다.
+</p>
+
+
+<pre class="shell">
+<em>:set fencs=utf-8,cp949</em>
+</pre>
+
+<h2>ctags</h2>
+
+<pre class="shell">
+$ <em>ctags -R</em>		# tags 파일 만들기 (Recursive)
+</pre>
+
+<pre class="shell">
+<kbd>^]</kbd>	Jump to the definition of the keyword under the cursor
+<kbd>^T</kbd>	Back
+</pre>
+
+<h2>grep</h2>
+
+<pre class="shell">
+<em>:grep 'pattern' *.php</em>
+</pre>
+
+<p>
+현재 디렉토리의 php 파일 중에서 pattern이 들어가는 파일을 찾아서 모두 연다. :cn 명령으로 다음 파일로 이동.
+</p>
+
+</body>
+</html>

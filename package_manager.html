@@ -1,0 +1,243 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Package Manager</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>Package Manager</h1>
+
+<h2>Redhat</h2>
+
+<p>vim 명령이 어떤 패키지에 들어있는지 rpm의 f 옵션으로 쿼리하고, yum으로 업데이트하는 예</p>
+
+<pre class="shell">
+$ <em>which vi</em>
+/bin/vi
+$ <em>rpm -qf /bin/vi</em>
+vim-minimal-6.3.046-0.40E.7
+</pre>
+
+<pre class="shell">
+$ <em>yum list vim*</em>
+Setting up repositories
+Reading repository metadata in from local files
+Installed Packages
+vim-minimal.i386                         1:6.3.046-0.40E.7      installed
+Available Packages
+vim-X11.i386                             1:6.3.046-1.el4_7.5z   base
+vim-common.i386                          1:6.3.046-1.el4_7.5z   base
+vim-enhanced.i386                        1:6.3.046-1.el4_7.5z   base
+vim-minimal.i386                         1:6.3.046-1.el4_7.5z   base
+</pre>
+
+<pre class="shell">
+$ <em>yum install vim-enhanced</em>
+
+후략
+</pre>
+
+<pre class="shell">
+$ <em>yum list vim*</em>
+Setting up repositories
+Reading repository metadata in from local files
+Installed Packages
+vim-common.i386                          1:6.3.046-0.40E.7      installed
+vim-enhanced.i386                        1:6.3.046-0.40E.7      installed
+vim-minimal.i386                         1:6.3.046-0.40E.7      installed
+Available Packages
+vim-X11.i386                             1:6.3.046-0.40E.7      base
+</pre>
+
+<h2>Debian</h2>
+
+<p>
+현재 vim이 어떤 패키지에 속한 버전인지 확인
+</p>
+
+<pre class="shell">
+$ <em>which vim</em>
+/usr/bin/vim
+$ <em>ls -l /usr/bin/vim</em>
+lrwxrwxrwx 1 root root 21 2009-03-24 02:48 /usr/bin/vim -&gt; /etc/alternatives/vim
+$ <em>ls -l /etc/alternatives/vim</em>
+lrwxrwxrwx 1 root root 17 2009-03-24 02:48 /etc/alternatives/vim -&gt; /usr/bin/vim.tiny
+$ <em>ls -l /usr/bin/vim.tiny</em>
+-rwxr-xr-x 1 root root 634212 2008-07-21 22:48 /usr/bin/vim.tiny
+$ <em>dpkg -S /usr/bin/vim.tiny</em>
+vim-tiny: /usr/bin/vim.tiny
+</pre> 
+
+<p>설치된 패키지 목록 보기</p>
+
+<pre class="shell">
+$ <em>dpkg -l</em>
+
+전략
+
+ii  vim-common            1:7.1.314-3ubuntu3    Vi IMproved - Common files
+ii  vim-tiny              1:7.1.314-3ubuntu3    Vi IMproved - enhanced vi editor - compact version
+
+후략
+
+</pre>
+
+<p>
+현재 패키지 목록 업데이트
+</p>
+
+<pre class="shell">
+$ <em>sudo apt-get update</em>
+
+</pre>
+
+<p>
+이름에 vim이 들어가는 패키지 검색
+</p>
+
+<pre class="shell">
+$ <em>apt-cache search --names-only vim</em>
+
+전략
+
+vim - Vi IMproved - enhanced vi editor
+vim-common - Vi IMproved - Common files
+vim-doc - Vi IMproved - HTML documentation
+
+후략
+
+</pre>
+
+<p>vim 패키지 설치</p>
+
+<pre class="shell">
+$ <em>sudo apt-get install vim</em>
+
+</pre>
+
+<p>
+패키지 설치/삭제가 반복되면서 꼬인 경우, remove 옵션 대신 purge 옵션 추천.
+</p>
+
+<pre class="shell">
+$ <em>sudo apt-get purge vim-tiny</em>
+
+</pre>
+
+
+<h2> 부팅 시 자동 실행 </h2>
+
+<h3> chkconfig를 이용하는 방법 </h3>
+
+<p>
+chkconfig 명령은 /sbin 디렉토리에 위치하고 있는 것에 유의.
+</p>
+
+<pre class="shell">
+$ <em>chkconfig --list</em>
+syslog          0:off   1:off   2:on    3:on    4:on    5:on    6:off
+kudzu           0:off   1:off   2:off   3:on    4:on    5:on    6:off
+irqbalance      0:off   1:off   2:off   3:on    4:on    5:on    6:off
+netdump         0:off   1:off   2:off   3:off   4:off   5:off   6:off
+mdmonitor       0:off   1:off   2:on    3:on    4:on    5:on    6:off
+rpcidmapd       0:off   1:off   2:off   3:on    4:on    5:on    6:off
+xinetd          0:off   1:off   2:off   3:on    4:on    5:on    6:off
+smb             0:off   1:off   2:off   3:off   4:off   5:off   6:off
+
+중략
+
+$ <em>chkconfig ntpd on</em>	# 부팅 시 ntpd 서비스 시작
+</pre>
+
+<h3> /etc/rc.d/rc.local 파일을 이용하는 방법</h3>
+
+<p>
+Redhat 계열에서만 지원하며, Runlevel 구분 없이 실행되는 것이 단점.
+</p>
+
+<h3> Redhat 계열에서 스크립트 직접 등록 </h3>
+
+<p>
+스크립트 위치는 /etc/rc.d/init.d 디렉토리. 실행을 원하는 Runlevel에 따라 /etc/rc.d/rc?.d 디렉토리에 링크를 생성할 것.
+</p>
+
+<p>
+/etc/rc.d/init.d 디렉토리 
+</p>
+
+<pre class="shell">
+$ <em>ls -al /etc/rc.d/init.d/</em>
+total 708
+drwxr-xr-x  2 root root  4096 Feb  2 14:43 .
+drwxr-xr-x 10 root root  4096 Sep 28 20:17 ..
+-rwxr-xr-x  1 root root  1566 Jan 21  2009 acpid
+-rwxr-xr-x  1 root root  1441 Mar 28  2007 anacron
+-rwxr-xr-x  1 root root  1429 Mar 14  2007 apmd
+-rwxr-xr-x  1 root root  1176 Jan  6  2007 atd
+
+중략
+
+</pre>
+
+<p>
+/etc/rc.d/rc3.d 디렉토리 
+</p>
+
+<pre class="shell">
+$ <em>ls -al rc3.d</em>
+total 308
+drwxr-xr-x  2 root root 4096 Feb  2 14:45 .
+drwxr-xr-x 10 root root 4096 Sep 28 20:17 ..
+lrwxrwxrwx  1 root root   17 Sep 28 20:25 K01dnsmasq -&gt; ../init.d/dnsmasq
+lrwxrwxrwx  1 root root   22 Dec  8 20:05 K02avahi-daemon -&gt; ../init.d/avahi-daemon
+lrwxrwxrwx  1 root root   24 Sep 28 20:25 K02avahi-dnsconfd -&gt; ../init.d/avahi-dnsconfd
+lrwxrwxrwx  1 root root   24 Sep 28 20:25 K02NetworkManager -&gt; ../init.d/NetworkManager
+
+중략
+
+</pre>
+
+<h3> Debian 계열에서 스크립트 직접 등록 </h3>
+
+<p>
+/etc/init.d/ 디렉토리에 스크립트 파일 svn.sh 파일을 생성하고 /etc/rcS.d/ 디렉토리에 S61svn.sh 이름으로 링크를 만드는 예.
+</p>
+
+<pre class="shell">
+$ <em>sudo ln -s /etc/init.d/<var>svn.sh</var> /etc/rcS.d/<var>S61svn.sh</var></em>
+</pre>
+
+<p>
+부팅 시 실행되는 스크립트의 이름은 S로 시작해야 하고, 숫자 순서대로 실행된다. <br />
+S40 이후는 모든 로컬 파일 시스템이 마운트되고 네트워킹이 가능하며 <br />
+S60 이후는 시스템 시계가 설정되고 NFS 파일 시스템이 마운트된다.
+</p>
+
+<pre class="shell">
+$ <em>cat /etc/rcS.d/README</em>
+The scripts in this directory whose names begin with an 'S' are executed
+once when booting the system, even when booting directly into single user
+mode.
+
+The scripts are all symbolic links whose targets are located in
+/etc/init.d/ .
+
+To disable a script in this directory, rename it so that it begins with
+a 'K'.
+
+For more information see /etc/init.d/README.
+
+The following sequence points are defined at this time:
+
+* After the S40 scripts have executed, all local file systems are mounted
+  and networking is available. All device drivers have been initialized.
+
+* After the S60 scripts have executed, the system clock has been set, NFS
+  filesystems have been mounted (unless the system depends on the automounter,
+  which is started later) and the filesystems have been cleaned.
+</pre>
+
+</body>
+</html>

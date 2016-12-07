@@ -1,0 +1,66 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>ntp</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> ntp </h1>
+
+<p>
+Network Time Protocol
+</p>
+
+<h2> Redhat </h2>
+
+<pre class="shell">
+$ <em>cat /etc/issue</em>
+CentOS release 5.3 (Final)
+Kernel \r on an \m
+
+$ <em>date</em>
+Tue Feb  2 14:49:39 KST 2010
+</pre>
+
+<pre class="shell">
+$ <em>yum install ntp</em>
+중략
+
+$ <em>chkconfig ntpd on</em>	# 부팅 시 서비스 자동 실행
+증략
+
+$ <em>/etc/init.d/ntpd start</em>
+중략
+</pre>
+
+<h2> Debian </h2>
+
+<pre class="shell">
+$ <em>cat /etc/issue</em>
+Ubuntu 8.10 \n \l
+
+$ <em>date</em>
+Tue Feb  2 14:58:25 KST 2010
+</pre>
+
+<pre class="shell">
+$ <em>apt-get install openntpd</em>
+중략
+
+$ <em>chkconfig ntpd on</em>	# 부팅 시 서비스 자동 실행
+증략
+
+$ <em>/etc/init.d/openntpd start</em>
+중략
+</pre>
+
+<h2> 참고 </h2>
+
+<p>
+<a href="package_manager.html">배포판 별 패키지 설치 방법.</a>
+</p>
+
+</body>
+</html>

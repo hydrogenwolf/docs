@@ -1,0 +1,189 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Network Configuration</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>Network Configuration</h1>
+
+<h2>ifconfig</h2>
+
+<pre class="shell">
+$ <em>ifconfig</em>
+eth0      Link encap:Ethernet  HWaddr 00:16:EC:26:99:5C
+          inet addr:192.168.0.219  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::216:ecff:fe26:995c/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:131947 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:132803 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:14854383 (14.1 MiB)  TX bytes:20907554 (19.9 MiB)
+          Interrupt:177 Base address:0x2800
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:19668 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:19668 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:2372900 (2.2 MiB)  TX bytes:2372900 (2.2 MiB)
+
+$ <em>ifconfig eth0 down</em>
+$ <em>ifconfig</em>
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:19668 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:19668 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:2372900 (2.2 MiB)  TX bytes:2372900 (2.2 MiB)
+
+$ <em>ifconfig -a</em>
+eth0      Link encap:Ethernet  HWaddr 00:16:EC:26:99:5C
+          inet addr:192.168.0.219  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::216:ecff:fe26:995c/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:131947 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:132803 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:14854383 (14.1 MiB)  TX bytes:20907554 (19.9 MiB)
+          Interrupt:177 Base address:0x2800
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:19668 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:19668 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:2372900 (2.2 MiB)  TX bytes:2372900 (2.2 MiB)
+
+$ <em>ifconfig eth0 up</em>
+$ <em>ifconfig</em>
+
+eth0      Link encap:Ethernet  HWaddr 00:16:EC:26:99:5C
+          inet addr:192.168.0.219  Bcast:192.168.0.255  Mask:255.255.255.0
+          inet6 addr: fe80::216:ecff:fe26:995c/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:131947 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:132803 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:14854383 (14.1 MiB)  TX bytes:20907554 (19.9 MiB)
+          Interrupt:177 Base address:0x2800
+
+lo        Link encap:Local Loopback
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          inet6 addr: ::1/128 Scope:Host
+          UP LOOPBACK RUNNING  MTU:16436  Metric:1
+          RX packets:19668 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:19668 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0
+          RX bytes:2372900 (2.2 MiB)  TX bytes:2372900 (2.2 MiB)
+
+$ <em>ifconfig eth0 218.159.92.107 netmask 255.255.255.240</em>
+$ <em>ifconfig eth0</em>
+eth0      Link encap:Ethernet  HWaddr 00:16:EC:26:99:5C
+          inet addr:<em>218.159.92.107</em>  Bcast:218.159.92.111  Mask:<em>255.255.255.240</em>
+
+          inet6 addr: fe80::216:ecff:fe26:995c/64 Scope:Link
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:131947 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:132803 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000
+          RX bytes:14854383 (14.1 MiB)  TX bytes:20907554 (19.9 MiB)
+          Interrupt:177 Base address:0x2800
+
+</pre>
+
+<p>
+* Bcast(BroadCast) 값은 명시적으로 지정하지 않았으나 Mask 값에 따라 자동으로 적절한 값으로 바뀌었다.
+</p>
+
+<h2>route</h2>
+
+<pre class="shell">
+$ <em>route</em>
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+218.159.92.96   *               255.255.255.240 U     0      0        0 eth0
+$ <em>route add default gw 218.159.92.105</em>
+
+$ <em>route</em>
+
+Kernel IP routing table
+Destination     Gateway         Genmask         Flags Metric Ref    Use Iface
+218.159.92.96   *               255.255.255.240 U     0      0        0 eth0
+default         218.159.92.105  0.0.0.0         UG    0      0        0 eth0
+</pre>
+
+<h2>dns</h2>
+
+<pre class="shell">
+$ <em>cat /etc/resolv.conf</em>
+nameserver 168.126.63.1
+search localdomain
+</pre>
+
+<h2>Network Configuration File</h2>
+
+<p>
+ifconfig 명령으로 설정한 것은 재부팅하면 초기화된다. 영구적인 설정을 원한다면 네트워크 설정 파일을 수정할 것.
+</p>
+
+<h3>Redhat</h3>
+
+<pre class="shell">
+$ <em>cat /etc/sysconfig/network-scripts/ifcfg-eth0</em>
+DEVICE=eth0
+ONBOOT=yes
+BOOTPROTO=static
+IPADDR=218.159.92.107
+NETMASK=255.255.255.240
+GATEWAY=218.159.92.105
+</pre>
+
+<p>
+network 서비스 재시작
+
+</p>
+
+<pre class="shell">
+$ <em>/etc/init.d/network restart</em>
+</pre>
+
+<h3>Debian</h3>
+
+<pre class="shell">
+$ <em>cat /etc/network/interfaces</em>
+
+# This file describes the network interfaces available on your system
+# and how to activate them. For more information, see interfaces(5).
+
+# The loopback network interface
+auto lo
+iface lo inet loopback
+
+# The primary network interface
+auto eth0
+#iface eth0 inet dhcp
+iface eth0 inet static
+address 218.159.92.108
+netmask 255.255.255.240
+gateway 218.159.92.105
+</pre>
+
+<p>
+networking 서비스 재시작
+</p>
+
+<pre class="shell">
+$ <em>/etc/init.d/networking restart</em>
+</pre>
+
+</body>
+</html>

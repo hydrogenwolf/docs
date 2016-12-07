@@ -1,0 +1,32 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>SSH</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>SSH</h1>
+
+<p>
+무수히 많은 SSH 접속 실패 로그를 보지 않으려면 SSH 접속 포트를 바꾸는 것이 한가지 방법.
+</p>
+
+<p>
+/etc/ssh/sshd_config 파일에서 Port 22를 찾아 수정하고 SSHD 재시작.
+</p>
+
+<pre class="shell">
+# <em>find / -name "sshd_config"</em>
+
+/etc/ssh/sshd_config
+# <em>vi /etc/ssh/sshd_config</em>
+</pre>
+
+<pre class="shell">
+# <em>/etc/init.d/sshd restart</em>
+</pre>
+
+</body>
+</html>

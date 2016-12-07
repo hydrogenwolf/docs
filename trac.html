@@ -1,0 +1,127 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Trac</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>Trac</h1>
+
+<p>Last updated: 2009-08-05</p>
+
+<h2>Install</h2>
+
+<p>
+데비안 계열 기준.
+</p>
+
+<pre class="shell">
+$ <em>sudo apt-get install trac</em>
+</pre>
+
+<h2>Make a project</h2>
+
+<p>
+/var/trac 디렉토리를 Trac 프로젝트 디렉토리로 사용한다 가정.
+</p>
+
+<pre class="shell">
+$ <em>sudo mkdir /var/trac</em>
+
+$ <em>sudo chown user:group /var/trac</em>
+
+$ <em>trac-admin /var/trac/my_project initenv</em>
+Creating a new Trac environment at /var/trac/my_project
+
+Trac will first ask a few questions about your environment
+in order to initalize and prepare the project database.
+
+ Please enter the name of your project.
+ This name will be used in page titles and descriptions.
+
+Project Name [My Project]> 
+
+하략.
+
+</pre>
+
+<h2>Authentication</h2>
+
+<p>
+htdigest를 이용해 사용자 목록 생성.
+</p>
+
+<pre class="shell">
+# <em>cd /var/trac</em>
+
+# <em>htdigest -c users.htdigest mycompany.com user1</em>
+Adding password for user1 in realm mycompany.com.
+New password:
+Re-type new password:
+
+# <em>htdigest users.htdigest mycompany.com user2</em>		-c 옵션이 없는 것 유의
+Adding user user2 in realm mycompany.com
+New password:
+Re-type new password:
+
+# <em>cat users.htdigest</em>
+user1:mycompany.com:62fb2f813acb7302c9cb4ee0295ee501
+user2:mycompany.com:89b29e0b02fc439ee2ad0e3f56861a1f
+</pre>
+
+<h2>Run</h2>
+
+<pre class="shell">
+# <em>tracd -a *,/var/trac/users.htdigest,mycompany.com -p 8000 -e /var/trac -d</em>
+
+</pre>
+
+<p>
+각 옵션의 의미는 tracd --help 참조.
+</p>
+
+<h2>TRAC_ADMIN</h2>
+
+<p>
+user1에게 TRAC_ADMIN 권한을 주어 Trac 프로젝트를 관리할 수 있도록 한다.
+<p>
+
+<pre class="shell">
+# <em>trac-admin /var/trac/my_project permission add user1 TRAC_ADMIN</em>
+# <em>trac-admin /var/trac/my_project permission list</em>
+
+User           Action
+------------------------------
+user1		TRAC_ADMIN
+anonymous	BROWSER_VIEW
+anonymous	CHANGESET_VIEW
+anonymous	FILE_VIEW
+anonymous	LOG_VIEW
+anonymous	MILESTONE_VIEW
+anonymous	REPORT_SQL_VIEW
+anonymous	REPORT_VIEW
+anonymous	ROADMAP_VIEW
+anonymous	SEARCH_VIEW
+anonymous	TICKET_CREATE
+anonymous	TICKET_MODIFY
+anonymous	TICKET_VIEW
+anonymous	TIMELINE_VIEW
+anonymous	WIKI_CREATE
+anonymous	WIKI_MODIFY
+anonymous	WIKI_VIEW
+
+
+Available actions:
+ CONFIG_VIEW, MILESTONE_ADMIN, MILESTONE_CREATE, MILESTONE_DELETE,
+ MILESTONE_MODIFY, MILESTONE_VIEW, REPORT_ADMIN, REPORT_CREATE,
+ REPORT_DELETE, REPORT_MODIFY, REPORT_SQL_VIEW, REPORT_VIEW, ROADMAP_ADMIN,
+ ROADMAP_VIEW, SEARCH_VIEW, TICKET_ADMIN, TICKET_APPEND, TICKET_CHGPROP,
+ TICKET_CREATE, TICKET_MODIFY, TICKET_VIEW, TIMELINE_VIEW, TRAC_ADMIN,
+ WIKI_ADMIN, WIKI_CREATE, WIKI_DELETE, WIKI_MODIFY, WIKI_VIEW
+
+</pre>
+
+</body>
+</html>

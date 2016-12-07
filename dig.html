@@ -1,0 +1,101 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>dig</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>dig</h1>
+
+<p>
+기본 사용. (Default 네임서버는 resolv.conf에서 참조. Default 레코드는 A)
+</p>
+
+<pre class="shell">
+$ <em>dig google.com</em>
+</pre>
+
+<p>
+네임 서버 지정.
+</p>
+
+<pre class="shell">
+$ <em>dig @8.8.8.8 google.com</em>
+</pre>
+
+<p>
+대상 레코드를 MX로 지정.
+</p>
+
+<pre class="shell">
+$ <em>dig google.com mx</em>
+</pre>
+
+
+<p>
+네임 서버 지정하고 대상 레코드는 NS로 지정.
+</p>
+
+<pre class="shell">
+$ <em>dig @8.8.8.8 google.com ns</em>
+</pre>
+
+<p>
+SOA
+</p>
+
+<pre class="shell">
+$ <em>dig google.com soa</em>
+</pre>
+
+<p>
+ANY
+</p>
+
+<pre class="shell">
+$ <em>dig google.com any</em>
+</pre>
+
+<p>
+Reverse Lookup
+</p>
+
+<pre class="shell">
+$ <em>dig -x 66.249.89.99</em>
+</pre>
+
+<p>
+ANSWER 섹션만 표시.
+</p>
+
+<pre class="shell">
+$ <em>dig google.com +noall +answer</em>
+
+; <<>> DiG 9.5.0-P2.1 <<>> google.com +noall +answer
+;; global options:  printcmd
+google.com.             9       IN      A       66.249.89.99
+google.com.             9       IN      A       66.249.89.104
+</pre>
+
+<p>
+순수하게 결과만 표시.
+</p>
+
+<pre class="shell">
+$ <em>dig google.com +short</em>
+66.249.89.104
+66.249.89.99
+</pre>
+
+<p>
+Lookup 과정 표시.
+</p>
+
+<pre class="shell">
+$ <em>dig google.com +trace</em>
+</pre>
+
+</body>
+</html>

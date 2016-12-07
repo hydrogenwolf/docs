@@ -1,0 +1,182 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>bind</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> bind </h1>
+
+<p>Last updated: 2012-12-05</p>
+
+<ul>
+<li><a href="http://kldp.org/KoreanDoc/NameServer.txt">네임서버 강좌</a> - 김병찬</li>
+<li><a href="http://oops.org/?t=lecture&sb=bind&n=1">Name Server Configuration</a> - 김정균</li>
+<li><a href="http://bind.com/">Bind.com</a></li>
+</ul>
+
+<h2>설정</h2>
+
+<p>
+배포판 등에 따라 설정 파일의 위치는 다르지만, 이름은 named.conf
+</p>
+
+<pre class="shell">
+$ <em>find / -name "named.conf" 2>/dev/null</em>
+/etc/named.conf
+</pre>
+
+<p>
+설정 파일의 내용은 크게 옵션(options) 부분과 존(zone) 부분으로 2가지로 이루어져 있다. 배포판에 따라 options 부분, 기본 zone 부분, 사용자 zone 부분을 별개의 파일로 분리해두고 include로 엮기도 있다.
+</p>
+
+<pre class="shell">
+<em>// 옵션 부분</em>
+options {
+        directory "/var/named";	<em>// 이 디렉토리에 zone 파일들이 위치한다</em>
+};
+
+<em>// 존 부분</em>
+zone "acme.com" {
+		type master;
+		file "data/acme.zone";
+};
+zone "acme.co.kr" {
+		type master;
+		file "data/acme.zone";
+};
+</pre>
+
+<p>
+View 구문을 사용할 경우는 다음과 같은 형태로 구성된다.
+</p>
+
+<pre class="shell">
+<em>// 옵션 부분</em>
+options {
+        directory "/var/named";	<em>// 이 디렉토리에 zone 파일들이 위치한다</em>
+};
+
+<em>// 내부 View</em>
+view "internal" {
+	match-clients { 111.111.111.111/29;!111.111.111.112; };	<em>// 여기 해당하는 IP에 대해서 다음 옵션과 Zone 설정을 적용</em>
+	recursion yes;
+	zone "acme.com" {
+			type master;
+			file "data/acme.internal.zone";
+	};
+	zone "acme.co.kr" {
+			type master;
+			file "data/acme.internal.zone";
+	};
+};
+
+<em>// 외부 View</em>
+view "external" {
+	match-clients { "any"; };
+	recursion no;
+	zone "acme.com" {
+			type master;
+			file "data/acme.zone";
+	};
+	zone "acme.co.kr" {
+			type master;
+			file "data/acme.zone";
+	};
+};
+</pre>
+
+<blockquote>
+View 구문을 사용할 때는 모든 Zone이 View 안에 위치해야 하는 것에 유의.
+</blockquote>
+
+<p>
+recursion은 허용, 차단 이외에도 일부에게만 허용할 수도 있다.
+</p>
+
+<pre class="shell">
+recursion yes;
+recursion no;
+allow-recursion { 127.0.0.1; 111.111.111.111/29; };
+</pre>
+
+<h2>Zone 파일</h2>
+
+<ul>
+<li>존 파일은 앞서 named.conf 파일에서 지정했던 direcotry에 위치해야 한다.</li>
+<li>존에는 SOA 레코드와 최소한 하나의 NS 레코드는 존재해야 한다.</li>
+<li>SOA에는 호스트이름, 관리자 이메일을 반드시 적어야 한다.</li>
+<li>@은 현재 호스트이름.</li>
+<li>관리자 이메일의 @은 '.'으로 대체할 것.</li>
+<li>도메인 이름의 마지막에 '.'을 빠뜨리지 않도록 유의. 심지어 localhost도.</li>
+</ul>
+
+<p>
+앞서 named.conf 파일 내용에 등장했던 acme.zone 파일 예시
+</p>
+
+<pre class="shell">
+$TTL 86400
+@	IN	SOA	locahost. root.acme.com. (
+                        2       ; Serial
+                        3H      ; Refresh
+                        15M     ; Retry
+                        1W      ; Expire
+                        1D )    ; 최소 TTL
+
+	IN	NS	localhost.
+
+	IN	A	111.111.111.1       <em>; 여기까지 맨처음 @이 계속 적용</em>
+www	IN	A	111.111.111.2
+ftp	IN	A	111.111.111.3
+*	IN	A	111.111.111.1       <em>; *는 맨 마지막에 둘 것</em>
+</pre>
+
+<h2> named.root </h2>
+
+<p>
+보통은 bind 패키지와 함께 설치되므로 따로 구할 필요가 없겠으나, 필요하다면 다음과 방법들로 구할 수 있음.
+</p>
+
+<p>
+첫번째 방법: dig 명령 이용
+</p>
+
+<pre class="shell">
+$ <em>dig @kns.kornet.net . ns > named.root</em>
+</pre>
+
+<p>
+두번째 방법: <a href="ftp://ftp.rs.internic.net/domain/">Internic에서 다운로드</a>
+</p>
+
+<h2> 부팅 시 자동 시작 </h2>
+
+<p>
+chkconfig를 이용해 부팅 시 자동 시작되도록 설정.
+</p>
+
+<pre class="shell">
+$ <em>chkconfig named on</em>
+
+or
+
+$ <em>chkconfig bind9 on</em>
+</pre>
+
+<h2> 문제 해결 & 로그 </h2>
+
+<p>
+named 서비스 실행에 문제가 있을 때는 물론이고 잘 실행될 때도 로그를 확인할 것. named 서비스 설정에 많은 도움을 받을 수 있다.
+</p>
+
+<h2> PTR (Reverse DNS) </h2>
+
+<p>
+PTR 레코드 등록이 KT는 사이트(http://dms.kornet.net/)에서 직접 가능했던 반면, <a href="http://www.bora.net/">LG데이콤 보라넷</a>은 전화(1544-8585)로 신청해야만 했다.
+</p>
+
+</body>
+</html>

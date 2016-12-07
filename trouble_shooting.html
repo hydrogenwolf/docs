@@ -1,0 +1,45 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>Trouble Shooting</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>Trouble Shooting</h1>
+
+<h2>apparmor</h2>
+
+<p>
+네임 서버가 때때로 응답하지 않으며, 로그에 아래와 같은 메시지가 남는다. (Ubutu 8.10)
+</p>
+
+<pre class="shell">
+Sep 27 06:57:22 beta kernel: [17839864.024417] type=1503 audit(1285538242.599:1489): operation="inode_permission" requested_mask="::r" denied_mask="::r" fsuid=112 name="/proc/31262/net/if_inet6" pid=31263 profile="/usr/sbin/named"
+Sep 27 07:07:39 beta -- MARK --
+Sep 27 07:27:39 beta -- MARK --
+Sep 27 07:47:39 beta -- MARK --
+Sep 27 07:57:22 beta kernel: [17843464.024442] type=1503 audit(1285541842.599:1490): operation="inode_permission" requested_mask="::r" denied_mask="::r" fsuid=112 name="/proc/31262/net/if_inet6" pid=31265 profile="/usr/sbin/named"
+Sep 27 08:07:39 beta -- MARK --
+Sep 27 08:27:39 beta -- MARK --
+Sep 27 08:47:39 beta -- MARK --
+Sep 27 08:57:22 beta kernel: [17847064.024460] type=1503 audit(1285545442.603:1491): operation="inode_permission" requested_mask="::r" denied_mask="::r" fsuid=112 name="/proc/31262/net/if_inet6" pid=31266 profile="/usr/sbin/named"
+Sep 27 09:07:39 beta -- MARK --
+Sep 27 09:27:39 beta -- MARK --
+Sep 27 09:47:39 beta -- MARK --
+</pre>
+
+<p>
+아래와 같이 apparmor를 중단 시키고, apparmor 관련 패키지를 제거한다.
+</p>
+
+<pre class="shell">
+$ <em>sudo /etc/init.d/apparmor stop</em>
+
+$ <em>sudo apt-get remove apparmor apparmor-utils</em>
+</pre>
+
+</body>
+
+</html>

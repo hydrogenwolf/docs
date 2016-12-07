@@ -1,0 +1,89 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>squid</title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1>squid</h1>
+
+<p>Version : 7:2.5.STABLE14-1.4E.el</p>
+
+<h2>Install</h2>
+
+<pre class="shell">
+$ <em>yum install squid</em>
+
+$ <em>yum list | grep squid</em>
+squid.i386                               7:2.5.STABLE14-1.4E.el installed
+
+</pre>
+
+<h2>Configuration</h2>
+
+<pre class="shell">
+# <em>find / -name "squid.conf"</em>
+/etc/httpd/conf.d/squid.conf
+/etc/squid/squid.conf
+
+# <em>vi /etc/squid/squid.conf</em>
+</pre>
+
+<pre class="shell">
+acl our_networks src 218.159.92.104/29
+http_access allow our_networks
+</pre>
+
+<h2>Run</h2>
+
+<pre class="shell">
+$ <em>/etc/rc.d/init.d/squid start</em>
+</pre>
+
+<h2>Troubleshooting</h2>
+
+<p>
+squid 동작에 문제가 있을 때, -N 옵션을 사용해서 No daemon 모드로 실행해보는 것이 도움이 된다.
+</p>
+
+<pre class="shell">
+# <em>find / -name "squid"</em>
+
+/usr/local/squid
+/usr/local/squid/libexec/squid
+/usr/local/squid/bin/squid
+/root/squid-2.4.STABLE7/src/squid
+
+# <em>/usr/local/squid/bin/squid -N</em>
+WARNING: Cannot write log file: /usr/local/squid/logs/cache.log
+/usr/local/squid/logs/cache.log: Permission denied
+         messages will be sent to 'stderr'.
+2008/06/03 16:24:36| WARNING: Closing open FD    2
+2008/06/03 16:24:36| Starting Squid Cache version 2.4.STABLE7 for i686-pc-linux-gnu...
+2008/06/03 16:24:36| Process ID 8054
+2008/06/03 16:24:36| With 1024 file descriptors available
+2008/06/03 16:24:36| Performing DNS Tests...
+2008/06/03 16:24:36| Successful DNS name lookup tests...
+2008/06/03 16:24:36| DNS Socket created on FD 3
+2008/06/03 16:24:36| Adding nameserver 168.126.63.1 from /etc/resolv.conf
+FATAL: Cannot open '/usr/local/squid/logs/access.log' for writing.
+        The parent directory must be writeable by the
+        user 'nobody', which is the cache_effective_user
+        set in squid.conf.
+Squid Cache (Version 2.4.STABLE7): Terminated abnormally.
+CPU Usage: 0.006 seconds = 0.001 user + 0.005 sys
+Maximum Resident Size: 0 KB
+Page faults with physical i/o: 0
+Aborted
+</pre>
+
+<h2>Port</h2>
+
+<p>
+squid의 Default Port는 3128번. Web Browser에서 Proxy 설정할 때 참고.
+</p>
+
+</body>
+</html>
