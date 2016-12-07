@@ -1,337 +1,345 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
-<head>
-<meta http-equiv="content-type" content="text/html; charset=utf-8" />
-<title> ftpd (vsftpd) </title>
-<link rel="stylesheet" href="shell.css" type="text/css" />
-</head>
-<body>
-
-<h1> vsftpd </h1>
-
-<ul>
-<li>Posted: 2009-05-07</li>
-<li>Last updated: 2013-09-16</li>
-</ul>
-
-<h2> Link </h2>
-
-<ul>
-<li>http://ubuntuforums.org/showthread.php?t=34292</li>
-<li>http://ubuntuforums.org/archive/index.php/t-34292.html</li>
-</ul>
-
-<h2> Configuration for Ubuntu </h2>
-
-<p>
-로그인 DB 암호화를 위한 유틸을 먼저 설치.
-</p>
-
-<pre class="shell">
-$ <em>sudo apt-get install db4.7-util</em>
-Reading package lists... Done
-Building dependency tree
-Reading state information... Done
-The following NEW packages will be installed:
-  db4.7-util
-0 upgraded, 1 newly installed, 0 to remove and 79 not upgraded.
-Need to get 107kB of archives.
-After this operation, 406kB of additional disk space will be used.
-Get:1 http://kr.archive.ubuntu.com intrepid/universe db4.7-util 4.7.25-3 [107kB]
-Fetched 107kB in 0s (174kB/s)
-Selecting previously deselected package db4.7-util.
-(Reading database ... 27542 files and directories currently installed.)
-Unpacking db4.7-util (from .../db4.7-util_4.7.25-3_i386.deb) ...
-Processing triggers for man-db ...
-Setting up db4.7-util (4.7.25-3) ...
-</pre>
-
-<p>
-사용자 목록 파일 예. (첫째줄 아이디, 둘째줄 암호, 셋째줄 아이디, 넷째줄 암호, ...) 
-</p>
-
-<pre class="shell">
-$ <em>cat logins.txt</em>
-tom
-foo
-fred
-bar
-</pre>
-
-<p>
-앞서 설치한 유틸로 로그인 DB 생성.
-</p>
-
-<pre class="shell">
-$ <em>sudo db4.7_load -T -t hash -f logins.txt /etc/vsftpd_login.db</em>
-</pre>
-
-<h3> /etc/pam.d/vsftpd </h3>
-
-<p>
-아래 3 라인 주석 처리.
-</p>
-
-<pre class="shell">
-@include common-account
-@include common-auth
-auth   required        pam_shells.so
-</pre>
-
-<p>
-아래 2 라인 추가.
-</p>
-
-<pre class="shell">
-auth required /lib/security/pam_userdb.so db=/etc/vsftpd_login
-account required /lib/security/pam_userdb.so db=/etc/vsftpd_login
-</pre>
-
-<h3> /etc/vsftpd.conf </h3>
-
-<pre class="shell">
-# Virtual User 모드 설정
-guest_enable=YES
-guest_username=ftp
-
-# Virtual User 모드는 Standalone으로만 동작
-listen=YES
-
-# Anonymous 접속 차단
-anonymous_enable=NO
-
-# Virtual User도 일종의 Local User
-local_enable=YES
-
-# 기본적으로 Anonymous와 같은 권한인 Virtual User 권한을 Local User 권한으로
-virtual_use_local_privs=YES
-
-# 홈디렉토리 위로 올라가지 못하도록
-chroot_local_user=YES
-
-# 업로드 허용 
-write_enable=YES
-
-# 새로운 디렉토리 생성 시, 접근 권한을 약간 느슨하게
-local_umask=022
-</pre>
-
-<p>
-Virtual User가 홈디렉토리 소유권을 가지고 있지 않은 경우가 있으므로 유의.
-</p>
-
-<pre class="shell">
-$ <em>sudo chown -R ftp:nogroup /home/ftp</em>
-</pre>
-
-<h2>Configuration for Redhat</h2>
-
-<p>
-Virtual User 방식을 기준으로 설정. 우선 소스 디렉토리의 EXAMPLE/VIRTUAL_USERS 디렉토리로 이동.
-</p>
-
-<pre class="shell">
-$ <em>cd EXAMPLE/VIRTUAL_USERS</em>
-</pre>
-
-
-<p>
-logins.txt 파일을 참조해서 아이디/암호 리스트 파일 생성. (첫째줄 아이디, 둘째줄 암호, 셋째줄 아이디, 넷째줄 암호, ...)
-</p>
-
-<pre class="shell">
-$ <em>cat logins.txt</em>
-tom
-foo
-fred
-bar
-</pre>
-
-<p>
-방금 만든 텍스트 파일을 사용해서 로그인 DB를 생성하고 퍼미션 변경.
-</p>
-
-<pre class="shell">
-$ <em>db_load -T -t hash -f logins.txt /etc/vsftpd_login.db</em>
-
-$ <em>chmod 600 /etc/vsftpd_login.db</em>
-</pre>
-
-<p>
-소스 디렉토리에 있는 vsftpd.pam 파일을 적절한 곳으로 복사.
-</p>
-
-<pre class="shell">
-$ <em>cp vsftpd.pam /etc/pam.d/ftp</em>
-</pre>
-
-<p>
-
-테스트를 위해 아무 파일 하나를 ftp 디렉토리(가상 ftp 유저로 사용할 유저의 홈 디렉토리)로 복사.
-</p>
-
-<pre class="shell">
-$ <em>cp /etc/hosts /home/l/</em>
-</pre>
-
-<p>
-예제로 들어있는 vsftpd.conf 파일을 /etc 디렉토리로 복사하고, vi로 열어서 적절히 수정.
-</p>
-
-<pre class="shell">
-guest_username=l		<em>가상 ftp 유저</em>
-
-#listen_port=10021		<em>10021번 대신 디폴트인 21번 사용</em>
-</pre>
-
-<p>
-vsftpd 데몬을 백그라운드로 실행하고 테스트.
-</p>
-<pre class="shell">
-$ <em>/usr/local/sbin/vsftpd &</em>
-$ <em>ftp localhost</em>
-Connected to localhost (127.0.0.1).
-220 ready, dude (vsFTPd 1.1.0: beat me, break me)
-Name (localhost:chris): <em>tom</em>
-
-331 Please specify the password.
-Password:
-230 Login successful. Have fun.
-Remote system type is UNIX.
-Using binary mode to transfer files.
-ftp> <em>pwd</em>
-257 "/"
-ftp> <em>ls</em>
-227 Entering Passive Mode (127,0,0,1,117,140)
-150 Here comes the directory listing.
-226 Transfer done (but failed to open directory).
-ftp> <em>size hosts</em>
-213 147 
-ftp> <em>bye</em>
-
-$ <em>ps -ef | grep vs</em>
-root     19062     1  0 16:11 ?        00:00:00 /usr/local/sbin/vsftpd
-root     19376 19315  0 16:54 pts/2    00:00:00 grep vs
-$ <em>kill 19062</em>		# vsftpd 설정을 커스터마이징하기 위해 종료
-
-</pre>
-
-<h3>Customizing</h3>
-
-<p>
-현재 world-readable 파일과 디렉토리만 읽을 수 있는 상태. 모든 파일과 디렉토리를 읽을 수 있도록 /etc/vsftpd.conf 파일 수정.
-</p>
-
-<pre class="shell">
-anon_world_readable_only=NO
-</pre>
-
-<blockquote>
-anon_world_readable_only=YES 상태로 두고, ftp로는 읽을 수 없는 파일 또는 공간을 만드는 것도 유용
-</blockquote>
-
-<p>
-새로운 파일을 생성(업로드)할 수 있도록 설정
-</p>
-
-<pre class="shell">
-write_enable=YES		<em>수정</em>
-anon_upload_enable=YES		<em>수정</em>
-</pre>
-
-<p>
-파일 삭제, 디렉토리 생성 등을 위한 권한 설정.
-<p>
-
-<pre class="shell">
-anon_other_write_enable=YES
-anon_mkdir_write_enable=YES
-</pre>
-
-<h2> 간편 FTP 설치 </h2>
-
-<p>
-시스템 유저가 로그인 가능한 vsftpd 설치. (CentOS 5.4 기준)
-</p>
-
-<h4> yum 설치 </h4>
-
-<pre class="shell">
-$ <em>yum list vsftpd*</em>
-Loaded plugins: fastestmirror
-Available Packages
-vsftpd.i386                          2.0.5-28.el5                           base
-</pre>
-
-<pre class="shell">
-# <em>yum install vsftpd</em>
-Loaded plugins: fastestmirror
-Determining fastest mirrors
- * addons: ftp.neowiz.com
- * base: ftp.neowiz.com
- * extras: ftp.neowiz.com
- * updates: ftp.neowiz.com
-addons                                                                                  | 1.9 kB     00:00
-base                                                                                    | 1.1 kB     00:00
-extras                                                                                  | 2.1 kB     00:00
-updates                                                                                 | 1.9 kB     00:00
-Setting up Install Process
-Resolving Dependencies
-
-<em>중략</em>
-
-Installed:
-  vsftpd.i386 0:2.0.5-28.el5
-
-Complete!
-</pre>
-
-<h4> 방화벽에서 FTP 포트 허용 </h4>
-
-<blockquote>
-setup -> Firewall configuration -> Customize -> FTP 체크
-</blockquote>
-
-<h4> SELinux에서 허용 </h4>
-
-<p>
-SELinux를 아예 Disable하는 것 보다 필요한 것만 허용해보자.
-</p>
-
-<p>
-현재 사용자 홈디렉토리가 보이지 않는 것이 문제.
-</p>
-
-<pre class="shell">
-# <em>setsebool -P ftp_home_dir on</em>	# 재부팅해도 적용되도록 -P 옵션 사용
-# <em>getsebool -a | grep ftp</em>
-allow_ftpd_anon_write --> off
-allow_ftpd_full_access --> off
-allow_ftpd_use_cifs --> off
-allow_ftpd_use_nfs --> off
-allow_tftp_anon_write --> off
-ftp_home_dir --> on
-ftpd_connect_db --> off
-ftpd_disable_trans --> off
-ftpd_is_daemon --> on
-httpd_enable_ftp_server --> off
-tftpd_disable_trans --> off
-</pre>
-
-<h4> 서비스 실행 </h4>
-
-<pre class="shell">
-# <em>/etc/init.d/vsftpd start</em>
-Starting vsftpd for vsftpd:                                [  OK  ]
-</pre>
-
-<h4> 부팅 시 자동 실행 </h4>
-
-<pre class="shell">
-# <em>chkconfig vsftpd on</em>
-# <em>chkconfig --list | grep vsftpd</em>
-vsftpd          0:off   1:off   2:on    3:on    4:on    5:on    6:off
-</pre>
-
-</body>
-</html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title> ftpd (vsftpd) </title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> ftpd (vsftpd) </h1>
+
+<ul>
+<li>Posted: 2009-05-07</li>
+<li>Last updated: 2016-12-07</li>
+</ul>
+
+<h3>Index</h3>
+<ul>
+<li>Local 유저 방식 설치</li>
+<li>Virtual 유저 방식 설치</li>
+	<ul>	<li>우분투</li>	<li>레드햇</li>
+	</ul>
+<li>방화벽 / SELinux</li><li>참조</li></ul>
+
+<h2> Local 유저 방식 설치 </h2>
+
+<p>
+CentOS 설치 기준
+</p>
+
+<h4> 설치 </h4>
+
+<pre class="shell">
+# <em>yum install vsftpd</em>
+
+</pre>
+
+<h4> 설정 </h4>
+
+설정 파일(/etc/vsftpd/vsftpd.conf)에서 'anonymous_enable'을 NO로 지정
+<pre class="shell">
+
+<em>anonymous_enable=NO</em>
+
+</pre>
+
+<h4> 실행 </h4>
+
+<h5>Cent OS 5.4</h5>
+<pre class="shell">
+# <em>/etc/init.d/vsftpd start</em>
+Starting vsftpd for vsftpd:                                [  OK  ]
+</pre>
+
+<h5>Cent OS 7.2</h5>
+<pre class="shell">
+# <em>service vsftpd restart</em>
+Redirecting to /bin/systemctl restart  vsftpd.service
+</pre>
+
+<blockquote>
+앞으로는 systemctl 명령을 써야할 듯
+</blockquote>
+
+<h4> 자동 실행 </h4>
+
+<h5>Cent OS 5.4</h5>
+<pre class="shell">
+# <em>chkconfig vsftpd on</em>
+# <em>chkconfig --list | grep vsftpd</em>
+vsftpd          0:off   1:off   2:on    3:on    4:on    5:on    6:off
+</pre>
+
+<h5>Cent OS 7.2</h5>
+<pre class="shell">
+# <em>systemctl enable vsftpd</em>
+</pre>
+
+<h2>Virtual 유저 방식 설치</h2>
+
+<h3> 우분투 </h3>
+
+<p>
+로그인 DB 암호화를 위한 유틸을 먼저 설치.
+</p>
+
+<pre class="shell">
+$ <em>sudo apt-get install db4.7-util</em>
+Reading package lists... Done
+Building dependency tree
+Reading state information... Done
+The following NEW packages will be installed:
+  db4.7-util
+0 upgraded, 1 newly installed, 0 to remove and 79 not upgraded.
+Need to get 107kB of archives.
+After this operation, 406kB of additional disk space will be used.
+Get:1 http://kr.archive.ubuntu.com intrepid/universe db4.7-util 4.7.25-3 [107kB]
+Fetched 107kB in 0s (174kB/s)
+Selecting previously deselected package db4.7-util.
+(Reading database ... 27542 files and directories currently installed.)
+Unpacking db4.7-util (from .../db4.7-util_4.7.25-3_i386.deb) ...
+Processing triggers for man-db ...
+Setting up db4.7-util (4.7.25-3) ...
+</pre>
+
+<p>
+사용자 목록 파일 예. (첫째줄 아이디, 둘째줄 암호, 셋째줄 아이디, 넷째줄 암호, ...) 
+</p>
+
+<pre class="shell">
+$ <em>cat logins.txt</em>
+tom
+foo
+fred
+bar
+</pre>
+
+<p>
+앞서 설치한 유틸로 로그인 DB 생성.
+</p>
+
+<pre class="shell">
+$ <em>sudo db4.7_load -T -t hash -f logins.txt /etc/vsftpd_login.db</em>
+</pre>
+
+<h3> /etc/pam.d/vsftpd </h3>
+
+<p>
+아래 3 라인 주석 처리.
+</p>
+
+<pre class="shell">
+@include common-account
+@include common-auth
+auth   required        pam_shells.so
+</pre>
+
+<p>
+아래 2 라인 추가.
+</p>
+
+<pre class="shell">
+auth required /lib/security/pam_userdb.so db=/etc/vsftpd_login
+account required /lib/security/pam_userdb.so db=/etc/vsftpd_login
+</pre>
+
+<h3> /etc/vsftpd.conf </h3>
+
+<pre class="shell">
+# Virtual User 모드 설정
+guest_enable=YES
+guest_username=ftp
+
+# Virtual User 모드는 Standalone으로만 동작
+listen=YES
+
+# Anonymous 접속 차단
+anonymous_enable=NO
+
+# Virtual User도 일종의 Local User
+local_enable=YES
+
+# 기본적으로 Anonymous와 같은 권한인 Virtual User 권한을 Local User 권한으로
+virtual_use_local_privs=YES
+
+# 홈디렉토리 위로 올라가지 못하도록
+chroot_local_user=YES
+
+# 업로드 허용 
+write_enable=YES
+
+# 새로운 디렉토리 생성 시, 접근 권한을 약간 느슨하게
+local_umask=022
+</pre>
+
+<p>
+Virtual User가 홈디렉토리 소유권을 가지고 있지 않은 경우가 있으므로 유의.
+</p>
+
+<pre class="shell">
+$ <em>sudo chown -R ftp:nogroup /home/ftp</em>
+</pre>
+
+<h3> 레드햇 </h3>
+
+<p>
+Virtual User 방식을 기준으로 설정. 우선 소스 디렉토리의 EXAMPLE/VIRTUAL_USERS 디렉토리로 이동.
+</p>
+
+<pre class="shell">
+$ <em>cd EXAMPLE/VIRTUAL_USERS</em>
+</pre>
+
+
+<p>
+logins.txt 파일을 참조해서 아이디/암호 리스트 파일 생성. (첫째줄 아이디, 둘째줄 암호, 셋째줄 아이디, 넷째줄 암호, ...)
+</p>
+
+<pre class="shell">
+$ <em>cat logins.txt</em>
+tom
+foo
+fred
+bar
+</pre>
+
+<p>
+방금 만든 텍스트 파일을 사용해서 로그인 DB를 생성하고 퍼미션 변경.
+</p>
+
+<pre class="shell">
+$ <em>db_load -T -t hash -f logins.txt /etc/vsftpd_login.db</em>
+
+$ <em>chmod 600 /etc/vsftpd_login.db</em>
+</pre>
+
+<p>
+소스 디렉토리에 있는 vsftpd.pam 파일을 적절한 곳으로 복사.
+</p>
+
+<pre class="shell">
+$ <em>cp vsftpd.pam /etc/pam.d/ftp</em>
+</pre>
+
+<p>
+
+테스트를 위해 아무 파일 하나를 ftp 디렉토리(가상 ftp 유저로 사용할 유저의 홈 디렉토리)로 복사.
+</p>
+
+<pre class="shell">
+$ <em>cp /etc/hosts /home/l/</em>
+</pre>
+
+<p>
+예제로 들어있는 vsftpd.conf 파일을 /etc 디렉토리로 복사하고, vi로 열어서 적절히 수정.
+</p>
+
+<pre class="shell">
+guest_username=l		<em>가상 ftp 유저</em>
+
+#listen_port=10021		<em>10021번 대신 디폴트인 21번 사용</em>
+</pre>
+
+<p>
+vsftpd 데몬을 백그라운드로 실행하고 테스트.
+</p>
+<pre class="shell">
+$ <em>/usr/local/sbin/vsftpd &</em>
+$ <em>ftp localhost</em>
+Connected to localhost (127.0.0.1).
+220 ready, dude (vsFTPd 1.1.0: beat me, break me)
+Name (localhost:chris): <em>tom</em>
+
+331 Please specify the password.
+Password:
+230 Login successful. Have fun.
+Remote system type is UNIX.
+Using binary mode to transfer files.
+ftp> <em>pwd</em>
+257 "/"
+ftp> <em>ls</em>
+227 Entering Passive Mode (127,0,0,1,117,140)
+150 Here comes the directory listing.
+226 Transfer done (but failed to open directory).
+ftp> <em>size hosts</em>
+213 147 
+ftp> <em>bye</em>
+
+$ <em>ps -ef | grep vs</em>
+root     19062     1  0 16:11 ?        00:00:00 /usr/local/sbin/vsftpd
+root     19376 19315  0 16:54 pts/2    00:00:00 grep vs
+$ <em>kill 19062</em>		# vsftpd 설정을 커스터마이징하기 위해 종료
+
+</pre>
+
+<h3>Customizing</h3>
+
+<p>
+현재 world-readable 파일과 디렉토리만 읽을 수 있는 상태. 모든 파일과 디렉토리를 읽을 수 있도록 /etc/vsftpd.conf 파일 수정.
+</p>
+
+<pre class="shell">
+anon_world_readable_only=NO
+</pre>
+
+<blockquote>
+anon_world_readable_only=YES 상태로 두고, ftp로는 읽을 수 없는 파일 또는 공간을 만드는 것도 유용
+</blockquote>
+
+<p>
+새로운 파일을 생성(업로드)할 수 있도록 설정
+</p>
+
+<pre class="shell">
+write_enable=YES		<em>수정</em>
+anon_upload_enable=YES		<em>수정</em>
+</pre>
+
+<p>
+파일 삭제, 디렉토리 생성 등을 위한 권한 설정.
+<p>
+
+<pre class="shell">
+anon_other_write_enable=YES
+anon_mkdir_write_enable=YES
+</pre>
+
+
+<h2>방화벽 / SELinux</h2>
+
+<p>
+Cent OS 5.* 등에서는 FTP 서비스가 정상 동작하기 위해 방화벽과 SELinux 설정을 수정할 필요가 있다.
+</p>
+
+<h4> 방화벽 </h4>
+
+<blockquote>
+setup -> Firewall configuration -> Customize -> FTP 체크
+</blockquote>
+
+<h4> SELinux </h4>
+
+<p>
+SELinux를 아예 Disable하는 방법도 있지만 필요한 것만 허용해보자. (FTP로 사용자 홈디렉토리에 액세스 가능하도록 허용)
+</p>
+
+<pre class="shell">
+# <em>setsebool -P ftp_home_dir on</em>	# 재부팅해도 적용되도록 -P 옵션 사용
+# <em>getsebool -a | grep ftp</em>
+allow_ftpd_anon_write --> off
+allow_ftpd_full_access --> off
+allow_ftpd_use_cifs --> off
+allow_ftpd_use_nfs --> off
+allow_tftp_anon_write --> off
+ftp_home_dir --> on
+ftpd_connect_db --> off
+ftpd_disable_trans --> off
+ftpd_is_daemon --> on
+httpd_enable_ftp_server --> off
+tftpd_disable_trans --> off
+</pre>
+
+<h2> 참조 </h2><ul><li>http://ubuntuforums.org/showthread.php?t=34292</li><li>http://ubuntuforums.org/archive/index.php/t-34292.html</li></ul>
+</body>
+</html>
