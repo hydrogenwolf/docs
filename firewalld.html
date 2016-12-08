@@ -1,0 +1,160 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title> firewalld </title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> firewalld </h1>
+
+<blockquote>
+<dl>
+<dt>2016-12-08</dt>
+<dd>
+Cent OS 7.2 기반으로 초안 작성.
+</dd>
+</dl>
+</blockquote>
+
+<blockquote>
+<ul>
+<li><a href="#Start">서비스 중지/재시작</a></li>
+<li><a href="#Configuration">설정 변경</a></li>
+<li><a href="#References">참조</a></li></ul>
+</blockquote>
+
+<h2 id="Start"> 서비스 중지/재시작 </h2>
+
+<p>
+동작 확인.
+</p>
+
+<pre class="shell">
+# <em>firewall-cmd --state</em>
+running
+</pre>
+
+<p>
+서비스 중지.
+</p>
+
+<pre class="shell">
+# <em>systemctl stop firewalld.service</em>
+# <em>firewall-cmd --state</em>
+not running
+
+</pre>
+
+<p>
+서비스 재시작.
+</p>
+
+<pre class="shell">
+# <em>systemctl restart firewalld.service</em>
+
+</pre>
+
+<p>
+부팅 시 서비스 자동 시작.
+</p>
+
+<pre class="shell">
+# <em>systemctl enable firewalld.service</em>
+Created symlink from /etc/systemd/system/dbus-org.fedoraproject.FirewallD1.service to /usr/lib/systemd/system/firewalld.service.
+Created symlink from /etc/systemd/system/basic.target.wants/firewalld.service to /usr/lib/systemd/system/firewalld.service.
+
+</pre>
+
+<pre class="shell">
+# <em>systemctl disable firewalld.service</em>
+Removed symlink /etc/systemd/system/basic.target.wants/firewalld.service.
+Removed symlink /etc/systemd/system/dbus-org.fedoraproject.FirewallD1.service.
+
+</pre>
+
+<h2 id="Configuration"> 설정 변경 </h2>
+
+<p>
+설정 확인.
+</p>
+
+<pre class="shell">
+# <em>firewall-cmd --list-all</em>
+public (default, active)
+  interfaces: eth0
+  sources:
+  services: dhcpv6-client ssh
+  ports:
+  masquerade: no
+  forward-ports:
+  icmp-blocks:
+  rich rules:
+</pre>
+
+<blockquote>
+현재 eth0 인터페이스가 public 존으로 연결되어 있고 DHCP 클라이언트와 SSH에 대해 오픈되어 있다.
+</blockquote>
+
+<p>
+방화벽에 HTTP 서비스 추가.
+</p>
+
+<pre class="shell">
+# <em>sudo firewall-cmd --add-service=http</em>
+success
+# <em>firewall-cmd --list-all</em>
+public (default, active)
+  interfaces: eth0
+  sources:
+  services: dhcpv6-client http ssh
+  ports:
+  masquerade: no
+  forward-ports:
+  icmp-blocks:
+  rich rules:
+</pre>
+
+<p>
+방화벽에 추가 가능한 서비스 목록.
+</p>
+
+<pre class="shell">
+# <em>firewall-cmd --get-services</em>
+RH-Satellite-6 amanda-client bacula bacula-client dhcp dhcpv6 dhcpv6-client dns freeipa-ldap freeipa-ldaps freeipa-replication ftp high-availability http https imaps ipp ipp-client ipsec iscsi-target kerberos kpasswd ldap ldaps libvirt libvirt-tls mdns mountd ms-wbt mysql nfs ntp openvpn pmcd pmproxy pmwebapi pmwebapis pop3s postgresql proxy-dhcp radius rpc-bind rsyncd samba samba-client smtp ssh telnet tftp tftp-client transmission-client vdsm vnc-server wbem-https
+</pre>
+
+<p>
+방화벽에 TCP 3690 포트 추가. (상기 목록에 없는 서비스 포트)
+</p>
+
+<pre class="shell">
+# <em>firewall-cmd --add-port=3690/tcp</em>
+success
+# <em>firewall-cmd --list-all</em>
+public (default, active)
+  interfaces: eth0
+  sources:
+  services: dhcpv6-client http ssh
+  ports: 3690/tcp
+  masquerade: no
+  forward-ports:
+  icmp-blocks:
+  rich rules:
+</pre>
+
+<p>
+재시작하면 방화벽 설정이 리셋된다. 테스트 완료 후에는 permanent 정책으로 추가하도록 하자.
+</p>
+
+<pre class="shell">
+# <em>firewall-cmd --add-port=3690/tcp --permanent</em>
+success
+</pre>
+
+<h2 id="References"> 참조 </h2>
+<ul>
+<li>https://www.digitalocean.com/community/tutorials/how-to-set-up-a-firewall-using-firewalld-on-centos-7</li></ul>
+</body>
+</html>

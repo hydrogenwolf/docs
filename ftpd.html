@@ -9,20 +9,18 @@
 
 <h1> ftpd (vsftpd) </h1>
 
-<ul>
-<li>Posted: 2009-05-07</li>
-<li>Last updated: 2016-12-07</li>
-</ul>
+<blockquote>
+2009-05-07 (Updated: 2016-12-07)
+</blockquote>
 
-<h3>Index</h3>
-<ul>
-<li>Local 유저 방식 설치</li>
-<li>Virtual 유저 방식 설치</li>
+<ul>
+<li><a href="#LocalUsers">Local 유저 방식 설치</a></li>
+<li><a href="#VirtualUsers">Virtual 유저 방식 설치</a></li>
 	<ul>	<li>우분투</li>	<li>레드햇</li>
 	</ul>
-<li>방화벽 / SELinux</li><li>참조</li></ul>
+<li><a href="#Firewall">방화벽 / SELinux</a></li><li><a href="#References">참조</a></li></ul>
 
-<h2> Local 유저 방식 설치 </h2>
+<h2 id="LocalUsers"> Local 유저 방식 설치 </h2>
 
 <p>
 CentOS 설치 기준
@@ -39,9 +37,7 @@ CentOS 설치 기준
 
 설정 파일(/etc/vsftpd/vsftpd.conf)에서 'anonymous_enable'을 NO로 지정
 <pre class="shell">
-
-<em>anonymous_enable=NO</em>
-
+<var>anonymous_enable=NO</var>
 </pre>
 
 <h4> 실행 </h4>
@@ -54,13 +50,9 @@ Starting vsftpd for vsftpd:                                [  OK  ]
 
 <h5>Cent OS 7.2</h5>
 <pre class="shell">
-# <em>service vsftpd restart</em>
-Redirecting to /bin/systemctl restart  vsftpd.service
-</pre>
+# <em>systemctl restart  vsftpd.service</em>
 
-<blockquote>
-앞으로는 systemctl 명령을 써야할 듯
-</blockquote>
+</pre>
 
 <h4> 자동 실행 </h4>
 
@@ -76,7 +68,7 @@ vsftpd          0:off   1:off   2:on    3:on    4:on    5:on    6:off
 # <em>systemctl enable vsftpd</em>
 </pre>
 
-<h2>Virtual 유저 방식 설치</h2>
+<h2 id="VirtualUsers">Virtual 유저 방식 설치</h2>
 
 <h3> 우분투 </h3>
 
@@ -236,7 +228,7 @@ $ <em>cp /etc/hosts /home/l/</em>
 </p>
 
 <pre class="shell">
-guest_username=l		<em>가상 ftp 유저</em>
+guest_username=l			<em>가상 ftp 유저</em>
 
 #listen_port=10021		<em>10021번 대신 디폴트인 21번 사용</em>
 </pre>
@@ -292,8 +284,8 @@ anon_world_readable_only=YES 상태로 두고, ftp로는 읽을 수 없는 파�
 </p>
 
 <pre class="shell">
-write_enable=YES		<em>수정</em>
-anon_upload_enable=YES		<em>수정</em>
+write_enable=YES			<em>수정</em>
+anon_upload_enable=YES	<em>수정</em>
 </pre>
 
 <p>
@@ -306,17 +298,16 @@ anon_mkdir_write_enable=YES
 </pre>
 
 
-<h2>방화벽 / SELinux</h2>
+<h2 id="Firewall">방화벽 / SELinux</h2>
 
 <p>
 Cent OS 5.* 등에서는 FTP 서비스가 정상 동작하기 위해 방화벽과 SELinux 설정을 수정할 필요가 있다.
 </p>
 
 <h4> 방화벽 </h4>
-
-<blockquote>
-setup -> Firewall configuration -> Customize -> FTP 체크
-</blockquote>
+<pre class="shell">
+<em>setup</em> => Firewall configuration => Customize => FTP 체크
+</pre>
 
 <h4> SELinux </h4>
 
@@ -340,6 +331,6 @@ httpd_enable_ftp_server --> off
 tftpd_disable_trans --> off
 </pre>
 
-<h2> 참조 </h2><ul><li>http://ubuntuforums.org/showthread.php?t=34292</li><li>http://ubuntuforums.org/archive/index.php/t-34292.html</li></ul>
+<h2 id="References"> 참조 </h2><ul><li>http://ubuntuforums.org/showthread.php?t=34292</li><li>http://ubuntuforums.org/archive/index.php/t-34292.html</li></ul>
 </body>
 </html>
