@@ -1,0 +1,154 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"> 
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title> SELinux </title>
+<link rel="stylesheet" href="shell.css" type="text/css" />
+</head>
+<body>
+
+<h1> SELinux </h1>
+
+<blockquote>
+<dl>
+<dt>2016-12-09</dt>
+<dd>
+Cent OS 7.2 기반으로 초안 작성.
+</dd>
+</dl>
+</blockquote>
+
+<blockquote>
+<ul>
+<li><a href="#Mode">동작 모드</a></li>
+<li><a href="#AccessControl">접근 제어</a></li>
+<li><a href="#References">참조</a></li></ul>
+</blockquote>
+
+<h2 id="Mode"> 동작 모드 </h2>
+
+<p>
+상태 확인.
+</p>
+
+<pre class="shell">
+# <em>sestatus</em>
+SELinux status:                 enabled
+SELinuxfs mount:                /sys/fs/selinux
+SELinux root directory:         /etc/selinux
+Loaded policy name:             targeted
+Current mode:                   enforcing
+Mode from config file:          enforcing
+Policy MLS status:              enabled
+Policy deny_unknown status:     allowed
+Max kernel policy version:      28
+</pre>
+
+<p>
+SELinux는 다음 3가지 모드를 가지고 있다.
+</p>
+
+<blockquote>
+<ul>
+<li>Enforcing: 보안 정책에 위배되는 액세스를 차단하는 상태</li>
+<li>Permissive: 보안 정책에 위배되는 액세스를 차단하지는 않지만 로그를 남기는 상태</li>
+<li>Disabled: SELinux가 꺼진 상태</li>
+</ul>
+</blockquote>
+
+<p>
+모드 확인.
+</p>
+
+<pre class="shell">
+# <em>getenforce</em>
+Enforcing
+
+</pre>
+
+<p>
+모드를 Permissive로 변경.
+</p>
+
+<pre class="shell">
+# <em>setenforce 0</em>
+# <em>getenforce</em>
+Permissive
+
+</pre>
+
+<blockquote>
+모드를 영구적으로 변경하려면 /etc/selinux/config 파일의 SELINUX 값을 'enforcing', 'permissive', 'disabled' 중 하나로 설정한다
+</blockquote>
+
+<h2 id="AccessControl"> 접근 제어 </h2>
+
+<p>
+많은 명령어들이 보안 Context를 보여주는 -Z 스위치를 지원한다.
+</p>
+
+<pre class="shell">
+# <em>ls -Z</em>
+lrwxrwxrwx. root root system_u:object_r:bin_t:s0       bin -> usr/bin
+dr-xr-xr-x. root root system_u:object_r:boot_t:s0      boot
+drwxr-xr-x. root root system_u:object_r:device_t:s0    dev
+drwxr-xr-x. root root system_u:object_r:etc_t:s0       etc
+drwxr-xr-x. root root system_u:object_r:home_root_t:s0 home
+lrwxrwxrwx. root root system_u:object_r:lib_t:s0       lib -> usr/lib
+lrwxrwxrwx. root root system_u:object_r:lib_t:s0       lib64 -> usr/lib64
+drwxr-xr-x. root root system_u:object_r:mnt_t:s0       media
+drwxr-xr-x. root root system_u:object_r:mnt_t:s0       mnt
+drwxr-xr-x. root root system_u:object_r:usr_t:s0       opt
+dr-xr-xr-x. root root system_u:object_r:proc_t:s0      proc
+dr-xr-x---. root root system_u:object_r:admin_home_t:s0 root
+drwxr-xr-x. root root system_u:object_r:var_run_t:s0   run
+lrwxrwxrwx. root root system_u:object_r:bin_t:s0       sbin -> usr/sbin
+drwxr-xr-x. root root system_u:object_r:var_t:s0       srv
+dr-xr-xr-x. root root system_u:object_r:sysfs_t:s0     sys
+drwxrwxrwt. root root system_u:object_r:tmp_t:s0       tmp
+drwxr-xr-x. root root system_u:object_r:usr_t:s0       usr
+drwxr-xr-x. root root system_u:object_r:var_t:s0       var
+</pre>
+
+<pre class="shell">
+# <em>ps axZ</em>
+
+중략
+
+system_u:system_r:svnserve_t:s0 12032 ?        Ss     0:00 /usr/bin/svnserve --daemon --pid-file=/run/svnserve/svnserve.pid -r /var/svn
+unconfined_u:unconfined_r:unconfined_t:s0-s0:c0.c1023 21905 pts/0 R+   0:00 ps axZ
+
+</pre>
+
+<blockquote>
+/var/log/audit/audit.log 파일에서 차단된(denied) 액세스를 검색, 'scontext' 값과 'tcontext' 값을 확인하면 어떤 파일(디렉토리)에 어떤 보안 Context가 필요한지 알 수 있다.
+</blockquote>
+
+<p>
+/var/svn/ 디렉토리 및 하위 디렉토리의 보안 Context 변경
+</p>
+
+<pre class="shell">
+# <em>chcon -Rv --type=svnserve_t /var/svn/</em>
+changing security context of ‘/var/svn/KJDMS/locks/db.lock’
+changing security context of ‘/var/svn/KJDMS/locks/db-logs.lock’
+changing security context of ‘/var/svn/KJDMS/locks’
+changing security context of ‘/var/svn/KJDMS/hooks/start-commit.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/pre-commit.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/pre-revprop-change.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/pre-lock.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/pre-unlock.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/post-commit.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/post-lock.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/post-unlock.tmpl’
+changing security context of ‘/var/svn/KJDMS/hooks/post-revprop-change.tmpl’
+
+하략
+
+</pre>
+
+<h2 id="References"> 참조 </h2>
+<ul>
+<li>https://wiki.centos.org/HowTos/SELinux</li></ul>
+</body>
+</html>
